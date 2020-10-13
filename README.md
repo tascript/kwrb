@@ -1,4 +1,4 @@
-# kwrb   [![Build Status](https://travis-ci.org/wataru-script/kwrb.svg?branch=master)](https://travis-ci.org/wataru-script/kwrb)
+# kwrb
 Kwrb class
 ## install by mrbgems
 - add conf.gem line to `build_config.rb`
