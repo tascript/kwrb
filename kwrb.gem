@@ -1,0 +1,7 @@
+name: kwrb
+description: Kwrb class
+author: Wataru Morita
+website: https://github.com/wataru-script/kwrb
+protocol: git
+repository: https://github.com/wataru-script/kwrb.git
+license: MIT
