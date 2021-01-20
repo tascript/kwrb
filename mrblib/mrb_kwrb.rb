@@ -1,6 +1,2 @@
-class Kwrb
-  def bye
-    self.hello + " bye"
-  end
+class Kwrb < TCPSocket
 end
-
