@@ -1,0 +1,6 @@
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+AllCops:
+  Exclude:
+    - src/**/*

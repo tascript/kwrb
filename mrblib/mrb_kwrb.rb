@@ -1,18 +1,19 @@
 class Kwrb < TCPSocket
+  class Client
+    def initialize(topic)
+      @topic = topic.to_s
+    end
 
-  def initialize(topic)
-    @topic = topic.to_s
+    def connect; end
+
+    def publish(payload, retain = 0); end
+
+    def subscribe; end
+
+    def disconnect; end
   end
 
-  def connect
-  end
-
-  def publish
-  end
-
-  def subscribe
-  end
-
-  def close
+  class Packet
+    def initialize; end
   end
 end
