@@ -12,7 +12,9 @@ class Kwrb
 
     def subscribe; end
 
-    def disconnect; end
+    def disconnect
+      super.close
+    end
   end
 
   class Packet
