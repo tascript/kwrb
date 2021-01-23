@@ -1,5 +1,6 @@
 class Kwrb
   class Client < TCPSocket
+    alias close_client close
     def initialize(topic)
       @topic = topic.to_s
     end
@@ -13,7 +14,7 @@ class Kwrb
     def subscribe; end
 
     def disconnect
-      super.close
+      close_client
     end
   end
 
