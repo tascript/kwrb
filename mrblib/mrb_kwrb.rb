@@ -4,7 +4,9 @@ class Kwrb < TCPSocket
       @topic = topic.to_s
     end
 
-    def connect; end
+    def connect(_host, _port)
+      open
+    end
 
     def publish(payload, retain = 0); end
 
