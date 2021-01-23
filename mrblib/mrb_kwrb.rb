@@ -6,8 +6,9 @@ class Kwrb
 
     def initialize; end
 
-    def connect(host, port)
+    def self.connect(host, port)
       super(host, port)
+      new
     end
 
     def publish(topic, payload, retain = 0); end
