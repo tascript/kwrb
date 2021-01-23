@@ -4,17 +4,17 @@ class Kwrb
     alias client_read  read
     alias client_close close
 
-    def initialize(topic)
-      @topic = topic.to_s
-    end
+    def initialize; end
 
     def connect(host, port)
       super(host, port)
     end
 
-    def publish(payload, retain = 0); end
+    def publish(topic, payload, retain = 0); end
 
-    def subscribe; end
+    def subscribe(topic, _payload, _retain = 0)
+      raise 'topic is invalid' if topic.nil?
+    end
 
     def disconnect
       close_client
