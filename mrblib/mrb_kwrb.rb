@@ -1,6 +1,9 @@
 class Kwrb
   class Client < TCPSocket
-    alias close_client close
+    alias client_write write
+    alias client_read  read
+    alias client_close close
+
     def initialize(topic)
       @topic = topic.to_s
     end
