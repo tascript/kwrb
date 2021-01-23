@@ -1,11 +1,11 @@
-class Kwrb < TCPSocket
-  class Client
+class Kwrb
+  class Client < TCPSocket
     def initialize(topic)
       @topic = topic.to_s
     end
 
-    def connect(_host, _port)
-      open
+    def connect(host, port)
+      super(host, port)
     end
 
     def publish(payload, retain = 0); end

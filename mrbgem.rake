@@ -1,5 +1,5 @@
 MRuby::Gem::Specification.new('kwrb') do |spec|
-  
-  spec.license = 'MIT'
   spec.authors = 'Wataru Morita'
+
+  spec.add_dependency = 'mruby-socket'
 end
