@@ -11,10 +11,18 @@ class Kwrb
       new
     end
 
-    def publish(topic, payload, retain = 0); end
+    def publish(topic, _payload, _retain = 0)
+      raise 'topic is invalid when publish message' if topic.nil?
+
+      # FIXME: create packet for publish
+      client_write('data')
+    end
 
     def subscribe(topic, _payload, _retain = 0)
-      raise 'topic is invalid' if topic.nil?
+      raise 'topic is invalid when subscribe message' if topic.nil?
+
+      # FIXME: create packet for subscribe
+      client_write('data')
     end
 
     def disconnect
