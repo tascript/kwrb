@@ -11,14 +11,14 @@ class Kwrb
       new
     end
 
-    def publish(topic, _payload, _retain = 0)
+    def publish(topic, _payload,)
       raise 'topic is invalid when publish message' if topic.nil?
 
       # FIXME: create packet for publish
       client_write('data')
     end
 
-    def subscribe(topic, _payload, _retain = 0)
+    def subscribe(topic, _payload)
       raise 'topic is invalid when subscribe message' if topic.nil?
 
       # FIXME: create packet for subscribe
@@ -31,6 +31,19 @@ class Kwrb
   end
 
   class Packet
-    def initialize; end
+    def initialize(type, dup, qos, retain)
+      unless type.instance_of?(Integer) &&
+             dup.instance_of?(Integer) &&
+             qos.instance_of?(Integer) &&
+             retain.instance_of?(Integer)
+        raise 'argument type is invalid'
+      end
+
+      @type = type
+      @dup = dup
+      @qos = qos
+      @retain = retain
+      header = (@type << 4) + (@dup << 3) + (@qos << 1) + @retain 
+    end
   end
 end
