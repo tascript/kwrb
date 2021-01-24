@@ -31,12 +31,11 @@ class Kwrb
   end
 
   class Packet
-    def initialize(type, dup, qos, retain)
-      unless type.instance_of?(Integer) &&
-             dup.instance_of?(Integer) &&
-             qos.instance_of?(Integer) &&
-             retain.instance_of?(Integer)
-        raise 'argument type is invalid'
+    def initialize(type, dup = 0, qos = 0, retain = 0)
+        raise 'type is invalid' unless (type >= 0 && type <= 15)
+        raise 'dup is invalid' unless (dup == 0 || dup == 1)
+        raise 'qos is invalid' unless (qos >= 0 && qos <= 3)
+        raise 'retain is invalid' unless (retain == 0 || retain == 1)
       end
 
       @type = type
