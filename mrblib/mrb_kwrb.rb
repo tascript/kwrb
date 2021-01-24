@@ -32,11 +32,10 @@ class Kwrb
 
   class Packet
     def initialize(type, dup = 0, qos = 0, retain = 0)
-        raise 'type is invalid' unless (type >= 0 && type <= 15)
-        raise 'dup is invalid' unless (dup == 0 || dup == 1)
-        raise 'qos is invalid' unless (qos >= 0 && qos <= 3)
-        raise 'retain is invalid' unless (retain == 0 || retain == 1)
-      end
+      raise 'type is invalid' unless type >= 0 && type <= 15
+      raise 'dup is invalid' unless dup == 0 || dup == 1
+      raise 'qos is invalid' unless qos >= 0 && qos <= 3
+      raise 'retain is invalid' unless retain == 0 || retain == 1
 
       @type = type
       @dup = dup
