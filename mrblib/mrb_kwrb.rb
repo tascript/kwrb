@@ -11,7 +11,7 @@ class Kwrb
       new
     end
 
-    def publish(topic, _payload,)
+    def publish(topic, _payload)
       raise 'topic is invalid when publish message' if topic.nil?
 
       # FIXME: create packet for publish
@@ -43,7 +43,7 @@ class Kwrb
       @dup = dup
       @qos = qos
       @retain = retain
-      header = (@type << 4) + (@dup << 3) + (@qos << 1) + @retain 
+      header = (@type << 4) + (@dup << 3) + (@qos << 1) + @retain
     end
   end
 end
