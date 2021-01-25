@@ -45,7 +45,7 @@ class Kwrb
       @protocol = 'MQIsdp'
       @version = 3
       fixed_header = [@type, @dup, @qos, @retain]
-      valiable_header = [0x00, @protocol.size.chr, @protocol, @version.chr, 0x0E, 0x00, 0x0A]
+      valiable_header = [0, @protocol.size, *@protocol.each_codepoint.to_a, @version, 0, 0, 10]
       @header = fixed_header.concat valiable_header
     end
   end
