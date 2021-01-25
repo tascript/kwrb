@@ -41,7 +41,10 @@ class Kwrb
       @dup = dup
       @qos = qos
       @retain = retain
-      header = (@type << 4) + (@dup << 3) + (@qos << 1) + @retain
+      @protocol = 'MQIsdp'
+      @version = 3
+      fixed_header = [@type, @dup, @qos, @retain]
+      valiable_header = [0.chr, @protocol.size.chr, @protocol, @version.chr]
     end
   end
 end
