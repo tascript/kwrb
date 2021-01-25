@@ -15,14 +15,14 @@ class Kwrb
       raise 'topic is invalid when publish message' if topic.nil?
 
       # FIXME: create packet for publish
-      client_write('data')
+      client_write 'data'
     end
 
     def subscribe(topic, _payload)
       raise 'topic is invalid when subscribe message' if topic.nil?
 
       # FIXME: create packet for subscribe
-      client_write('data')
+      client_write 'data'
     end
 
     def disconnect
@@ -31,6 +31,7 @@ class Kwrb
   end
 
   class Packet
+    attr_reader :header
     def initialize(type, dup = 0, qos = 0, retain = 0)
       raise 'type is invalid' unless type >= 0 && type <= 15
       raise 'dup is invalid' unless dup == 0 || dup == 1
@@ -45,6 +46,7 @@ class Kwrb
       @version = 3
       fixed_header = [@type, @dup, @qos, @retain]
       valiable_header = [0x00, @protocol.size.chr, @protocol, @version.chr, 0x0E, 0x00, 0x0A]
+      @header = fixed_header.concat valiable_header
     end
   end
 end
