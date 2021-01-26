@@ -4,11 +4,17 @@ class Kwrb
     alias client_read  read
     alias client_close close
 
-    def initialize; end
+    def initialize(id)
+      @client_id = id.to_s
+      raise 'type is invalid' if @client_id.empty? || @client_id.size > 23
+    end
 
-    def self.connect(host, port)
+    def self.connect(host, port, id)
       super(host, port)
-      new
+      new(id)
+      base_packet = Kwrb::Packet.new(1)
+      payload = base_packet.header.push @client_id.each_codepoint.to_a
+      client_write payload.pack('C*')
     end
 
     def publish(topic, _payload)
@@ -34,9 +40,9 @@ class Kwrb
     attr_reader :header
     def initialize(type, dup = 0, qos = 0, retain = 0)
       raise 'type is invalid' unless type >= 0 && type <= 15
-      raise 'dup is invalid' unless dup == 0 || dup == 1
+      raise 'dup is invalid' unless dup.zero? || dup == 1
       raise 'qos is invalid' unless qos >= 0 && qos <= 3
-      raise 'retain is invalid' unless retain == 0 || retain == 1
+      raise 'retain is invalid' unless retain.zero? || retain == 1
 
       @type = type
       @dup = dup
