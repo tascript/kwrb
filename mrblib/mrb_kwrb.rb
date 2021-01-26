@@ -17,6 +17,8 @@ class Kwrb
       client_write payload.pack('C*')
     end
 
+    def read_connack_response; end
+
     def publish(topic, _payload)
       raise 'topic is invalid when publish message' if topic.nil?
 
