@@ -56,5 +56,7 @@ class Kwrb
       valiable_header = [0, @protocol.size, *@protocol.each_codepoint.to_a, @version, 0, 0, 10]
       @header = fixed_header.concat valiable_header
     end
+
+    def self.broker; end
   end
 end
