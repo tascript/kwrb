@@ -21,10 +21,12 @@ class Kwrb
       res = client_read
       raise 'response is invalid when read connack' unless res.nil?
 
+      res_header = res.unpack('C*')[0..2]
+      res_code = res.unpack('C*')[3]
       header = Kwrb::Packet::Connack.new
+      raise 'header is invalid when read connack' unless res_header == header
 
-      # FIXME: get header from res 0..2
-      raise 'header is invalid when read connack' unless res == header
+      res_code
     end
 
     def publish(topic, _payload)
@@ -62,7 +64,7 @@ class Kwrb
         @protocol = 'MQIsdp'
         @version = 3
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0, @protocol.size, *@protocol.each_codepoint.to_a, @version, 0, 0, 10]
+        valiable_header = [0x00, @protocol.size, *@protocol.each_codepoint.to_a, @version, 0x00, 0x00, 0xA0]
         @header = fixed_header.concat valiable_header
       end
     end
@@ -74,7 +76,7 @@ class Kwrb
         raise 'qos is invalid' unless qos >= 0 && qos <= 3
         raise 'retain is invalid' unless retain.zero? || retain == 1
 
-        fixed_header = [(2 << 5), 0]
+        fixed_header = [(0x01 << 5), 0]
         valiable_header = [0]
         @header = fixed_header.concat valiable_header
       end
