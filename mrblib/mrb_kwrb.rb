@@ -12,7 +12,7 @@ class Kwrb
     def self.connect(host, port, id)
       super(host, port)
       new(id)
-      base_packet = Kwrb::Packet::Base.new(1)
+      base_packet = Kwrb::Packet::Connect.new(1)
       payload = base_packet.header.push @client_id.each_codepoint.to_a
       client_write payload.pack('C*')
     end
@@ -47,7 +47,7 @@ class Kwrb
   end
 
   class Packet
-    class Base
+    class Connect
       attr_reader :header
       def initialize(type, dup = 0, qos = 0, retain = 0)
         raise 'type is invalid' unless type >= 0 && type <= 15
