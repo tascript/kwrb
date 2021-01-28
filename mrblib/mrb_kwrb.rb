@@ -12,12 +12,20 @@ class Kwrb
     def self.connect(host, port, id)
       super(host, port)
       new(id)
-      base_packet = Kwrb::Packet.new(1)
+      base_packet = Kwrb::Packet::Base.new(1)
       payload = base_packet.header.push @client_id.each_codepoint.to_a
       client_write payload.pack('C*')
     end
 
-    def read_connack; end
+    def read_connack
+      res = client_read
+      raise 'response is invalid when read connack' unless res.nil?
+
+      header = Kwrb::Packet::Connack.new
+
+      # FIXME: get header from res 0..2
+      raise 'header is invalid when read connack' unless res == header
+    end
 
     def publish(topic, _payload)
       raise 'topic is invalid when publish message' if topic.nil?
@@ -39,24 +47,37 @@ class Kwrb
   end
 
   class Packet
-    attr_reader :header
-    def initialize(type, dup = 0, qos = 0, retain = 0)
-      raise 'type is invalid' unless type >= 0 && type <= 15
-      raise 'dup is invalid' unless dup.zero? || dup == 1
-      raise 'qos is invalid' unless qos >= 0 && qos <= 3
-      raise 'retain is invalid' unless retain.zero? || retain == 1
+    class Base
+      attr_reader :header
+      def initialize(type, dup = 0, qos = 0, retain = 0)
+        raise 'type is invalid' unless type >= 0 && type <= 15
+        raise 'dup is invalid' unless dup.zero? || dup == 1
+        raise 'qos is invalid' unless qos >= 0 && qos <= 3
+        raise 'retain is invalid' unless retain.zero? || retain == 1
 
-      @type = type
-      @dup = dup
-      @qos = qos
-      @retain = retain
-      @protocol = 'MQIsdp'
-      @version = 3
-      fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-      valiable_header = [0, @protocol.size, *@protocol.each_codepoint.to_a, @version, 0, 0, 10]
-      @header = fixed_header.concat valiable_header
+        @type = type
+        @dup = dup
+        @qos = qos
+        @retain = retain
+        @protocol = 'MQIsdp'
+        @version = 3
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
+        valiable_header = [0, @protocol.size, *@protocol.each_codepoint.to_a, @version, 0, 0, 10]
+        @header = fixed_header.concat valiable_header
+      end
     end
+    class Connack
+      attr_reader :header
+      def initialize
+        raise 'type is invalid' unless type >= 0 && type <= 15
+        raise 'dup is invalid' unless dup.zero? || dup == 1
+        raise 'qos is invalid' unless qos >= 0 && qos <= 3
+        raise 'retain is invalid' unless retain.zero? || retain == 1
 
-    def self.broker; end
+        fixed_header = [(2 << 5), 0]
+        valiable_header = [0]
+        @header = fixed_header.concat valiable_header
+      end
+    end
   end
 end
