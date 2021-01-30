@@ -3,24 +3,21 @@ class Kwrb
     alias client_write write
     alias client_read  read
     alias client_close close
+    def initialize(*arg); end
 
-    def initialize(*arg)
-      super(*arg)
-    end
-
-    def self.connect(host, port, id)
+    def self.connect(host, port = 1883, id = 'test')
       @client_id = id.to_s
       raise 'type is invalid' if @client_id.empty? || @client_id.size > 23
 
-      s = TCPSocket.open(host, port)
+      @socket = TCPSocket.open(host, port)
       base_packet = Kwrb::Packet::Connect.new(1)
       payload = base_packet.header.concat @client_id.bytes
-      s.write payload.pack('C*')
+      @socket.write payload.pack('C*')
       new
     end
 
     def connack
-      res = read
+      res = @socket
       raise 'response is invalid when read connack' if res.nil?
 
       res_header = res.unpack('C*')[0..2]
