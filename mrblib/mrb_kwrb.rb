@@ -11,7 +11,7 @@ class Kwrb
 
       # connect with host and send payload
       @socket = TCPSocket.open(host, port)
-      base_packet = Kwrb::Packet::Connect.new(1)
+      base_packet = Kwrb::Packet::Connect.new
       payload = base_packet.header.concat @client_id.bytes
       @socket.write payload.pack('C*')
 
@@ -48,18 +48,13 @@ class Kwrb
   class Packet
     class Connect
       attr_reader :header
-      def initialize(type, dup = 0, qos = 0, retain = 0)
-        raise 'type is invalid' unless type >= 0 && type <= 15
-        raise 'dup is invalid' unless dup.zero? || dup == 1
-        raise 'qos is invalid' unless qos >= 0 && qos <= 3
-        raise 'retain is invalid' unless retain.zero? || retain == 1
-
-        @type = type
-        @dup = dup
-        @qos = qos
-        @retain = retain
+      def initialize
+        @type = 0x01
+        @dup = 0x00
+        @qos = 0x00
+        @retain = 0x00
         @protocol = 'MQIsdp'
-        @version = 3
+        @version = 0x03
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
         valiable_header = [0x00, @protocol.bytes.size, *@protocol.bytes, @version, 0x00, 0x00, 0xA0]
         @header = fixed_header.concat valiable_header
