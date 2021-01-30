@@ -71,11 +71,6 @@ class Kwrb
     class Connack
       attr_reader :header
       def initialize
-        raise 'type is invalid' unless type >= 0 && type <= 15
-        raise 'dup is invalid' unless dup.zero? || dup == 1
-        raise 'qos is invalid' unless qos >= 0 && qos <= 3
-        raise 'retain is invalid' unless retain.zero? || retain == 1
-
         fixed_header = [(0x01 << 5), 0]
         valiable_header = [0]
         @header = fixed_header.concat valiable_header
