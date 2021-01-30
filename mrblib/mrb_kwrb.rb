@@ -9,23 +9,21 @@ class Kwrb
       @client_id = id.to_s
       raise 'type is invalid' if @client_id.empty? || @client_id.size > 23
 
+      # connect with host and send payload
       @socket = TCPSocket.open(host, port)
       base_packet = Kwrb::Packet::Connect.new(1)
       payload = base_packet.header.concat @client_id.bytes
       @socket.write payload.pack('C*')
-      new
-    end
 
-    def connack
-      res = @socket
-      raise 'response is invalid when read connack' if res.nil?
-
-      res_header = res.unpack('C*')[0..2]
-      res_code = res.unpack('C*')[3]
+      # validate connack response
+      res = @socket.read
+      res_header = res.unpack('C*')[0]
+      res_code = res.unpack('C*')[1]
       header = Kwrb::Packet::Connack.new
-      raise 'header is invalid when read connack' unless res_header == header
+      raise 'header is invalid when read connack' if res_header != header
+      raise 'response from blocker is invalid' unless res_code.zero?
 
-      res_code
+      new
     end
 
     def publish(topic, _payload)
@@ -74,6 +72,8 @@ class Kwrb
         valiable_header = [0]
         @header = fixed_header.concat valiable_header
       end
+
+      def self.validate_code; end
     end
   end
 end
