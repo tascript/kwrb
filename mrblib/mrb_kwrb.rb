@@ -58,8 +58,8 @@ class Kwrb
     class Connack
       attr_reader :header
       def initialize
-        fixed_header = [(0x01 << 5), 0]
-        valiable_header = [0]
+        fixed_header = [(0x01 << 5), 0x00]
+        valiable_header = [0x00]
         @header = fixed_header.concat valiable_header
       end
 
