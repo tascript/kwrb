@@ -10,16 +10,16 @@ class Kwrb
     end
 
     def self.connect(host, port, id)
-      super(host, port)
-      new(id)
+      s = TCPSocket.open(host, port)
       base_packet = Kwrb::Packet::Connect.new(1)
       payload = base_packet.header.push @client_id.each_codepoint.to_a
-      client_write payload.pack('C*')
+      s.write payload.pack('C*')
+      new(id)
     end
 
-    def read_connack
-      res = client_read
-      raise 'response is invalid when read connack' unless res.nil?
+    def connack
+      res = read
+      raise 'response is invalid when read connack' if res.nil?
 
       res_header = res.unpack('C*')[0..2]
       res_code = res.unpack('C*')[3]
@@ -78,3 +78,5 @@ class Kwrb
     end
   end
 end
+
+s = Kwrb::Client.connect('localhost', 1883, 'test')
