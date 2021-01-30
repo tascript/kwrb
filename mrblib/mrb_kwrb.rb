@@ -4,7 +4,9 @@ class Kwrb
     alias client_read  read
     alias client_close close
 
-    def initialize; end
+    def initialize(*arg)
+      super(*arg)
+    end
 
     def self.connect(host, port, id)
       @client_id = id.to_s
