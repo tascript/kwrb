@@ -14,7 +14,6 @@ class Kwrb
       base_packet = Kwrb::Packet::Connect.new(1)
       payload = base_packet.header.concat @client_id.bytes
       s.write payload.pack('C*')
-      puts payload.pack('C*')
       new
     end
 
