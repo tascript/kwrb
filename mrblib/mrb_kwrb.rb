@@ -78,5 +78,3 @@ class Kwrb
     end
   end
 end
-
-s = Kwrb::Client.connect('localhost', 1883, 'test')
