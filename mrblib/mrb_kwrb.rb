@@ -1,10 +1,5 @@
 class Kwrb
-  class Client < TCPSocket
-    alias client_write write
-    alias client_read  read
-    alias client_close close
-    def initialize(*arg); end
-
+  class Client
     def self.connect(host, port = 1883, id = 'test')
       @client_id = id.to_s
       raise 'type is invalid' if @client_id.empty? || @client_id.size > 23
