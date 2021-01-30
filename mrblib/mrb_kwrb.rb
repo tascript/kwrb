@@ -4,17 +4,18 @@ class Kwrb
     alias client_read  read
     alias client_close close
 
-    def initialize(id)
-      @client_id = id.to_s
-      raise 'type is invalid' if @client_id.empty? || @client_id.size > 23
-    end
+    def initialize; end
 
     def self.connect(host, port, id)
+      @client_id = id.to_s
+      raise 'type is invalid' if @client_id.empty? || @client_id.size > 23
+
       s = TCPSocket.open(host, port)
       base_packet = Kwrb::Packet::Connect.new(1)
-      payload = base_packet.header.push @client_id.each_codepoint.to_a
+      payload = base_packet.header.concat @client_id.bytes
       s.write payload.pack('C*')
-      new(id)
+      puts payload.pack('C*')
+      new
     end
 
     def connack
@@ -64,7 +65,7 @@ class Kwrb
         @protocol = 'MQIsdp'
         @version = 3
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0x00, @protocol.size, *@protocol.each_codepoint.to_a, @version, 0x00, 0x00, 0xA0]
+        valiable_header = [0x00, @protocol.bytes.size, *@protocol.bytes, @version, 0x00, 0x00, 0xA0]
         @header = fixed_header.concat valiable_header
       end
     end
