@@ -63,7 +63,24 @@ class Kwrb
         @header = fixed_header.concat valiable_header
       end
 
-      def self.validate_code; end
+      def self.validate_code(code)
+        case code
+        when 0x00
+          true
+        when 0x01
+          raise 'Connection Refused: unacceptable protocol version'
+        when 0x02
+          raise 'Connection Refused: identifer rejected'
+        when 0x03
+          raise 'Connection Refused: server unavailable'
+        when 0x04
+          raise 'Connection Refused: bad user name or password'
+        when 0x05
+          raise 'Connection Refused: not authorized'
+        else
+          raise "Connection Refused: #{code} is invalid"
+        end
+      end
     end
   end
 end
