@@ -18,6 +18,8 @@ class Kwrb
       raise 'header is invalid when read connack' if res_header != header
       raise 'response from blocker is invalid' unless res_code.zero?
 
+      Kwrb::Packet::Connack.validate_code(res_code)
+
       new
     end
 
