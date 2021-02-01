@@ -27,11 +27,15 @@ class Kwrb
       new
     end
 
-    def publish(topic, _payload)
-      raise 'topic is invalid when publish message' if topic.nil?
+    def publish(topic, messgae)
+      if topic.nil? || messgae.nil?
+        raise 'argument is invalid when publish message'
+      end
 
-      # FIXME: create packet for publish
-      client_write 'data'
+      header = Kwrb::Packet::Publish.new(topic)
+      payload = header.concat messgae
+      @socket.write payload.pack('C*')
+      @client_id += 1
     end
 
     def subscribe(topic, _payload)
