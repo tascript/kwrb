@@ -10,16 +10,18 @@ class Kwrb
 
       # connect with host and send payload
       @socket = TCPSocket.open(host, port)
-      base_packet = Kwrb::Packet::Connect.new
-      payload = base_packet.header.concat @client_id.bytes
+      connect_packet = Kwrb::Packet::Connect.new
+      payload = connect_packet.header.concat @client_id.bytes
       @socket.write payload.pack('C*')
 
       # validate connack response
       res = @socket.read
       res_header = res.unpack('C*')[0]
       res_code = res.unpack('C*')[1]
-      header = Kwrb::Packet::Connack.new
-      raise 'header is invalid when read connack' if res_header != header
+      connack_packet = Kwrb::Packet::Connack.new
+      if res_header != connack_packet.header
+        raise 'header is invalid when read connack'
+      end
       raise 'response from blocker is invalid' unless res_code.zero?
 
       Kwrb::Packet::Connack.validate_code(res_code)
@@ -38,11 +40,16 @@ class Kwrb
       @messeage_id += 1
     end
 
-    def subscribe(topic, _payload)
+    def subscribe(topic)
       raise 'topic is invalid when subscribe message' if topic.nil?
 
-      # FIXME: create packet for subscribe
-      client_write 'data'
+      packet = Kwrb::Packet::Subscribe.new
+      header = packet.header
+
+      # FIXME: create payload for multiple topics
+      payload = [*header, topic.bytes.size, *topic.bytes, 0x01]
+      @socket.write payload.pack('C*')
+      @messeage_id += 1
     end
 
     def disconnect
@@ -99,7 +106,7 @@ class Kwrb
         @qos = 0x01
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0x00, topic.bytes.size, *topic.bytes, 0x00, client_id]
+        valiable_header = [0x00, topic.bytes.size, *topic.bytes, 0x00, @messeage_id]
         @header = fixed_header.concat valiable_header
       end
     end
