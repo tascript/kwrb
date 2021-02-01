@@ -1,7 +1,7 @@
 class Kwrb
   class Client
     def initialize
-      @client_id = 0x01
+      @messeage_id = 0x01
     end
 
     def self.connect(host, port = 1883, id = 'test')
@@ -35,7 +35,7 @@ class Kwrb
       header = Kwrb::Packet::Publish.new(topic)
       payload = header.concat messgae
       @socket.write payload.pack('C*')
-      @client_id += 1
+      @messeage_id += 1
     end
 
     def subscribe(topic, _payload)
@@ -100,6 +100,17 @@ class Kwrb
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
         valiable_header = [0x00, topic.bytes.size, *topic.bytes, 0x00, client_id]
+        @header = fixed_header.concat valiable_header
+      end
+    end
+    class Subscribe
+      def initialize
+        @type = 0x08
+        @dup = 0x00
+        @qos = 0x01
+        @retain = 0x00
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
+        valiable_header = [0x00, @messeage_id]
         @header = fixed_header.concat valiable_header
       end
     end
