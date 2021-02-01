@@ -68,7 +68,7 @@ class Kwrb
       def self.validate_code(code)
         case code
         when 0x00
-          true
+          code
         when 0x01
           raise 'Connection Refused: unacceptable protocol version'
         when 0x02
