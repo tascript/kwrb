@@ -1,5 +1,9 @@
 class Kwrb
   class Client
+    def initialize
+      @client_id = 0x01
+    end
+
     def self.connect(host, port = 1883, id = 'test')
       @client_id = id.to_s
       raise 'type is invalid' if @client_id.empty? || @client_id.size > 23
@@ -82,6 +86,17 @@ class Kwrb
         else
           raise "Connection Refused: #{code} is invalid"
         end
+      end
+    end
+    class Publish
+      def initialize(topic)
+        @type = 0x03
+        @dup = 0x00
+        @qos = 0x01
+        @retain = 0x00
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
+        valiable_header = [0x00, topic.bytes.size, *topic.bytes, 0x00, client_id]
+        @header = fixed_header.concat valiable_header
       end
     end
   end
