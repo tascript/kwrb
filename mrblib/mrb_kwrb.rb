@@ -53,7 +53,10 @@ class Kwrb
     end
 
     def disconnect
-      close_client
+      packet = Kwrb::Packet::Disconnect.new
+      header = packet.header
+      @socket.write header.pack('C*')
+      @socket.close
     end
   end
 
