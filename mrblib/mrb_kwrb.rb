@@ -75,7 +75,11 @@ class Kwrb
     class Connack
       attr_reader :header
       def initialize
-        fixed_header = [(0x01 << 5), 0x00]
+        @type = 0x02
+        @dup = 0x00
+        @qos = 0x00
+        @retain = 0x00
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
         valiable_header = [0x00]
         @header = fixed_header.concat valiable_header
       end
@@ -107,6 +111,50 @@ class Kwrb
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
         valiable_header = [0x00, topic.bytes.size, *topic.bytes, 0x00, @messeage_id]
+        @header = fixed_header.concat valiable_header
+      end
+    end
+    class Puback
+      def initialize
+        @type = 0x04
+        @dup = 0x00
+        @qos = 0x00
+        @retain = 0x00
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
+        valiable_header = [0x00, @messeage_id]
+        @header = fixed_header.concat valiable_header
+      end
+    end
+    class Pubrec
+      def initialize
+        @type = 0x05
+        @dup = 0x00
+        @qos = 0x00
+        @retain = 0x00
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
+        valiable_header = [0x00, @messeage_id]
+        @header = fixed_header.concat valiable_header
+      end
+    end
+    class Pubrel
+      def initialize
+        @type = 0x06
+        @dup = 0x00
+        @qos = 0x01
+        @retain = 0x00
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
+        valiable_header = [0x00, @messeage_id]
+        @header = fixed_header.concat valiable_header
+      end
+    end
+    class Pubcomp
+      def initialize
+        @type = 0x07
+        @dup = 0x00
+        @qos = 0x00
+        @retain = 0x00
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
+        valiable_header = [0x00, @messeage_id]
         @header = fixed_header.concat valiable_header
       end
     end
