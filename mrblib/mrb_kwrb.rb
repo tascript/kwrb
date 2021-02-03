@@ -211,5 +211,35 @@ class Kwrb
         @header = fixed_header.concat valiable_header
       end
     end
+    class Pingreq
+      attr_reader :header
+      def initialize
+        @type = 0x0C
+        @dup = 0x00
+        @qos = 0x00
+        @retain = 0x00
+        @header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x00]
+      end
+    end
+    class Pingresp
+      attr_reader :header
+      def initialize
+        @type = 0x0D
+        @dup = 0x00
+        @qos = 0x00
+        @retain = 0x00
+        @header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x00]
+      end
+    end
+    class Disconnect
+      attr_reader :header
+      def initialize
+        @type = 0x0E
+        @dup = 0x00
+        @qos = 0x00
+        @retain = 0x00
+        @header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x00]
+      end
+    end
   end
 end
