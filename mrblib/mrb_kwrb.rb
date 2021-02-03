@@ -175,5 +175,41 @@ class Kwrb
         @header = fixed_header.concat valiable_header
       end
     end
+    class Suback
+      attr_reader :header
+      def initialize
+        @type = 0x09
+        @dup = 0x00
+        @qos = 0x00
+        @retain = 0x00
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
+        valiable_header = [0x00, @messeage_id]
+        @header = fixed_header.concat valiable_header
+      end
+    end
+    class Unsubscribe
+      attr_reader :header
+      def initialize
+        @type = 0x0A
+        @dup = 0x00
+        @qos = 0x01
+        @retain = 0x00
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
+        valiable_header = [0x00, @messeage_id]
+        @header = fixed_header.concat valiable_header
+      end
+    end
+    class Unsuback
+      attr_reader :header
+      def initialize
+        @type = 0x0B
+        @dup = 0x00
+        @qos = 0x01
+        @retain = 0x00
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
+        valiable_header = [0x00, @messeage_id]
+        @header = fixed_header.concat valiable_header
+      end
+    end
   end
 end
