@@ -104,6 +104,7 @@ class Kwrb
       end
     end
     class Publish
+      attr_reader :header
       def initialize(topic)
         @type = 0x03
         @dup = 0x00
@@ -115,6 +116,7 @@ class Kwrb
       end
     end
     class Puback
+      attr_reader :header
       def initialize
         @type = 0x04
         @dup = 0x00
@@ -126,6 +128,7 @@ class Kwrb
       end
     end
     class Pubrec
+      attr_reader :header
       def initialize
         @type = 0x05
         @dup = 0x00
@@ -137,6 +140,7 @@ class Kwrb
       end
     end
     class Pubrel
+      attr_reader :header
       def initialize
         @type = 0x06
         @dup = 0x00
@@ -148,6 +152,7 @@ class Kwrb
       end
     end
     class Pubcomp
+      attr_reader :header
       def initialize
         @type = 0x07
         @dup = 0x00
@@ -159,6 +164,7 @@ class Kwrb
       end
     end
     class Subscribe
+      attr_reader :header
       def initialize
         @type = 0x08
         @dup = 0x00
