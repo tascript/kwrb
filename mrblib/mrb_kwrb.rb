@@ -63,6 +63,12 @@ class Kwrb
       @socket.write payload.pack('C*')
     end
 
+    def pingreq
+      packet = Kwrb::Packet::Pingreq.new
+      header = packet.header
+      @socket.write header.pack('C*')
+    end
+
     def disconnect
       packet = Kwrb::Packet::Disconnect.new
       header = packet.header
