@@ -49,7 +49,15 @@ class Kwrb
       # FIXME: create payload for multiple topics
       payload = [*header, topic.bytes.size, *topic.bytes, 0x02]
       @socket.write payload.pack('C*')
-      @messeage_id += 1
+
+      res = @socket.read
+      res_header = res.unpack('C*')[0..2]
+      res_payload = res.unpack('C*')[3]
+      suback_packet = Kwrb::Packet::Suback.new
+      raise 'header is invalid when read suback' if res_header != suback_packet
+      raise 'packet is invalid when read suback' if res_payload > 0x03
+
+      puts "Sucscribe is Successful: subscribe #{topic} and qos level is #{res_payload}"
     end
 
     def unsubscribe
