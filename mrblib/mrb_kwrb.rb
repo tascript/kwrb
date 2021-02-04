@@ -47,9 +47,20 @@ class Kwrb
       header = packet.header
 
       # FIXME: create payload for multiple topics
-      payload = [*header, topic.bytes.size, *topic.bytes, 0x01]
+      payload = [*header, topic.bytes.size, *topic.bytes, 0x02]
       @socket.write payload.pack('C*')
       @messeage_id += 1
+    end
+
+    def unsubscribe
+      raise 'topic is invalid when unsubscribe message' if topic.nil?
+
+      packet = Kwrb::Packet::Unsubscribe.new
+      header = packet.header
+
+      # FIXME: create payload for multiple topics
+      payload = [*header, 0x00, topic.bytes.size, *topic.bytes, 0x01]
+      @socket.write payload.pack('C*')
     end
 
     def disconnect
