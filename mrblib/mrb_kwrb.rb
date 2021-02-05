@@ -29,19 +29,27 @@ class Kwrb
       new
     end
 
-    def publish(topic, messgae)
-      if topic.nil? || messgae.nil?
-        raise 'argument is invalid when publish message'
-      end
+    def publish(topic, messgae, qos = 0x00)
+      raise 'topic is invalid when publish message' if topic.nil?
+      raise 'messgae is invalid when publish message' if messgae.nil?
+      raise 'qos is invalid when publish message' if qos.negative? || qos > 0x03
 
-      header = Kwrb::Packet::Publish.new(topic)
+      header = Kwrb::Packet::Publish.new(topic, qos)
       payload = header.concat messgae
       @socket.write payload.pack('C*')
       @messeage_id += 1
       res = @socket.read
-      puback_packet = Kwrb::Packet::Puback.new
-      if res != puback_packet
-        raise 'response from blocker is invalid when get puback'
+      case qos
+      when 0x01
+        puback_packet = Kwrb::Packet::Puback.new
+        if res != puback_packet
+          raise 'response from blocker is invalid when get puback'
+        end
+      when 0x02
+        pubrec_packet = Kwrb::Packet::Pubrec.new
+        if res != pubrec_packet
+          raise 'response from blocker is invalid when get pubrec'
+        end
       end
     end
 
@@ -141,10 +149,10 @@ class Kwrb
     end
     class Publish
       attr_reader :header
-      def initialize(topic)
+      def initialize(topic, qos)
         @type = 0x03
         @dup = 0x00
-        @qos = 0x01
+        @qos = qos.to_i
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
         valiable_header = [0x00, topic.bytes.size, *topic.bytes, 0x00, @messeage_id]
