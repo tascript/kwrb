@@ -38,6 +38,11 @@ class Kwrb
       payload = header.concat messgae
       @socket.write payload.pack('C*')
       @messeage_id += 1
+      res = @socket.read
+      puback_packet = Kwrb::Packet::Puback.new
+      if res != puback_packet
+        raise 'response from blocker is invalid when get puback'
+      end
     end
 
     def subscribe(topic)
