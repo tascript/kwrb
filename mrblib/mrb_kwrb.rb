@@ -40,6 +40,8 @@ class Kwrb
       @messeage_id += 1
       res = @socket.read
       case qos
+      when 0x00
+        return
       when 0x01
         puback_packet = Kwrb::Packet::Puback.new
         if res != puback_packet
@@ -50,6 +52,8 @@ class Kwrb
         if res != pubrec_packet
           raise 'response from blocker is invalid when get pubrec'
         end
+      else
+        raise "qos flag #{qos} is invalid"
       end
     end
 
