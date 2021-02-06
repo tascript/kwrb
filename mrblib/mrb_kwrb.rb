@@ -71,7 +71,9 @@ class Kwrb
       res_header = res.unpack('C*')[0..2]
       res_payload = res.unpack('C*')[3]
       suback_packet = Kwrb::Packet::Suback.new
-      raise 'header is invalid when read suback' if res_header != suback_packet
+      if res_header != suback_packet.header
+        raise 'header is invalid when read suback'
+      end
       raise 'packet is invalid when read suback' if res_payload > 0x03
 
       puts "Sucscribe is Successful: subscribe #{topic} and qos level is #{res_payload}"
@@ -86,6 +88,15 @@ class Kwrb
       # FIXME: create payload for multiple topics
       payload = [*header, 0x00, topic.bytes.size, *topic.bytes, 0x01]
       @socket.write payload.pack('C*')
+
+      res = @socket.read
+      res_header = res.unpack('C*')
+      unsuback_packet = Kwrb::Packet::Unsuback.new
+      if res_header != unsuback_packet.header
+        raise 'header is invalid when read unsuback'
+      end
+
+      puts 'Unsucscribe is Successful'
     end
 
     def pingreq
