@@ -113,6 +113,7 @@ class Kwrb
       header = packet.header
       @socket.write header.pack('C*')
       @socket.close
+      puts 'Disconnect is Successful'
     end
   end
 
