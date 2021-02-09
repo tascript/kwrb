@@ -34,8 +34,8 @@ class Kwrb
       raise 'messgae is invalid when publish message' if messgae.nil?
       raise 'qos is invalid when publish message' if qos.negative? || qos > 0x03
 
-      header = Kwrb::Packet::Publish.new(topic, qos)
-      payload = header.concat messgae
+      publish_packet = Kwrb::Packet::Publish.new(topic, qos)
+      payload = publish_packet.head.concat messgae
       @socket.write payload.pack('C*')
       @messeage_id += 1
       res = @socket.read
@@ -44,13 +44,21 @@ class Kwrb
         return
       when 0x01
         puback_packet = Kwrb::Packet::Puback.new
-        if res != puback_packet
+        if res != puback_packet.header
           raise 'response from blocker is invalid when get puback'
         end
       when 0x02
         pubrec_packet = Kwrb::Packet::Pubrec.new
-        if res != pubrec_packet
+        if res != pubrec_packet.header
           raise 'response from blocker is invalid when get pubrec'
+        end
+
+        pubrel_packet = Kwrb::Packet::Pubrel.new
+        @socket.write pubrel_packet.header.pack('C*')
+        pubcomp_res = @socket.read
+        pubcomp_packet = Kwrb::Packet::Pubcomp.new
+        if pubcomp_res != pubcomp_packet.header
+          raise 'response from blocker is invalid when get pubcomp'
         end
       else
         raise "qos flag #{qos} is invalid"
