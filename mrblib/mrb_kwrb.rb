@@ -194,7 +194,7 @@ class Kwrb
         @dup = 0x00
         @qos = 0x00
         @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x01]
         valiable_header = [0x00, @messeage_id]
         @header = fixed_header.concat valiable_header
       end
@@ -206,7 +206,7 @@ class Kwrb
         @dup = 0x00
         @qos = 0x01
         @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x01]
         valiable_header = [0x00, @messeage_id]
         @header = fixed_header.concat valiable_header
       end
@@ -218,7 +218,7 @@ class Kwrb
         @dup = 0x00
         @qos = 0x00
         @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
+        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x01]
         valiable_header = [0x00, @messeage_id]
         @header = fixed_header.concat valiable_header
       end
