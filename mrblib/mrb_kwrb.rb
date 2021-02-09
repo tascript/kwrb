@@ -29,13 +29,13 @@ class Kwrb
       new
     end
 
-    def publish(topic, messgae, qos = 0x00)
+    def publish(topic, message, qos = 0x00)
       raise 'topic is invalid when publish message' if topic.nil?
-      raise 'messgae is invalid when publish message' if messgae.nil?
+      raise 'message is invalid when publish message' if message.nil?
       raise 'qos is invalid when publish message' if qos.negative? || qos > 0x03
 
       publish_packet = Kwrb::Packet::Publish.new(topic, qos)
-      payload = publish_packet.head.concat messgae
+      payload = publish_packet.head.concat message
       @socket.write payload.pack('C*')
       @messeage_id += 1
       res = @socket.read
