@@ -1,4 +1,5 @@
 # kwrb
+kwrb is MQTT client for mruby.
 
 ## install by mrbgems
 - add conf.gem line to `build_config.rb`
