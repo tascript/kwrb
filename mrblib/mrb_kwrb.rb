@@ -6,7 +6,9 @@ class Kwrb
 
     def self.connect(host, port = 1883, id = 'test')
       @client_id = id.to_s
-      raise 'type is invalid' if @client_id.empty? || @client_id.size > 23
+      if @client_id.empty? || @client_id.size > 23
+        raise 'Failure: client id is invalid'
+      end
 
       # connect with host and send payload
       @socket = TCPSocket.open(host, port)
@@ -20,9 +22,9 @@ class Kwrb
       res_code = res.unpack('C*')[1]
       connack_packet = Kwrb::Packet::Connack.new
       if res_header != connack_packet.header
-        raise 'header is invalid when read connack'
+        raise 'Failure: header is invalid when read connack'
       end
-      raise 'response from blocker is invalid' unless res_code.zero?
+      raise 'Failure: response from blocker is invalid' unless res_code.zero?
 
       Kwrb::Packet::Connack.validate_code(res_code)
 
@@ -30,9 +32,11 @@ class Kwrb
     end
 
     def publish(topic, message, qos = 0x00)
-      raise 'topic is invalid when publish message' if topic.nil?
-      raise 'message is invalid when publish message' if message.nil?
-      raise 'qos is invalid when publish message' if qos.negative? || qos > 0x03
+      raise 'Failure: topic is invalid when publish message' if topic.nil?
+      raise 'Failure: message is invalid when publish message' if message.nil?
+      if qos.negative? || qos > 0x03
+        raise 'Failure: qos is invalid when publish message'
+      end
 
       publish_packet = Kwrb::Packet::Publish.new(topic, qos)
       payload = publish_packet.head.concat message
@@ -45,12 +49,12 @@ class Kwrb
       when 0x01
         puback_packet = Kwrb::Packet::Puback.new
         if res != puback_packet.header
-          raise 'response from blocker is invalid when get puback'
+          raise 'Failure: response from blocker is invalid when get puback'
         end
       when 0x02
         pubrec_packet = Kwrb::Packet::Pubrec.new
         if res != pubrec_packet.header
-          raise 'response from blocker is invalid when get pubrec'
+          raise 'Failure: response from blocker is invalid when get pubrec'
         end
 
         pubrel_packet = Kwrb::Packet::Pubrel.new
@@ -58,15 +62,15 @@ class Kwrb
         pubcomp_res = @socket.read
         pubcomp_packet = Kwrb::Packet::Pubcomp.new
         if pubcomp_res != pubcomp_packet.header
-          raise 'response from blocker is invalid when get pubcomp'
+          raise 'Failure: response from blocker is invalid when get pubcomp'
         end
       else
-        raise "qos flag #{qos} is invalid"
+        raise "Failure: qos flag #{qos} is invalid"
       end
     end
 
     def subscribe(topic)
-      raise 'topic is invalid when subscribe message' if topic.nil?
+      raise 'Failure: topic is invalid when subscribe message' if topic.nil?
 
       packet = Kwrb::Packet::Subscribe.new
       header = packet.header
@@ -80,15 +84,15 @@ class Kwrb
       res_payload = res.unpack('C*')[3]
       suback_packet = Kwrb::Packet::Suback.new
       if res_header != suback_packet.header
-        raise 'header is invalid when read suback'
+        raise 'Failure: header is invalid when read suback'
       end
-      raise 'packet is invalid when read suback' if res_payload > 0x03
+      raise 'Failure: packet is invalid when read suback' if res_payload > 0x03
 
       puts "Sucscribe is Successful: subscribe #{topic} and qos level is #{res_payload}"
     end
 
     def unsubscribe
-      raise 'topic is invalid when unsubscribe message' if topic.nil?
+      raise 'Failure: topic is invalid when unsubscribe message' if topic.nil?
 
       packet = Kwrb::Packet::Unsubscribe.new
       header = packet.header
@@ -101,7 +105,7 @@ class Kwrb
       res_header = res.unpack('C*')
       unsuback_packet = Kwrb::Packet::Unsuback.new
       if res_header != unsuback_packet.header
-        raise 'header is invalid when read unsuback'
+        raise 'Failure: header is invalid when read unsuback'
       end
 
       puts 'Unsucscribe is Successful'
@@ -113,7 +117,7 @@ class Kwrb
       @socket.write header.pack('C*')
       res = @socket.read
       pingresp_packet = Kwrb::Packet::Pingresp.new
-      raise 'response is invalid when pingresq' if res != pingresp_packet.header
+      raise 'Failure: response is invalid when pingresq' if res != pingresp_packet.header
     end
 
     def disconnect
