@@ -15,7 +15,7 @@ class Kwrb
 
       # connect with host and send payload
       @socket = TCPSocket.open(host, port)
-      connect_packet = Kwrb::Packet::Connect.new
+      connect_packet = Kwrb::Packet::Connect.new(@username, @password)
       payload = connect_packet.header.concat @client_id.bytes
       @socket.write payload.pack('C*')
 
@@ -144,10 +144,10 @@ class Kwrb
         @retain = 0x00
         @protocol = 'MQIsdp'
         @version = 0x03
-        @user_flag = username.exist? ? 1 : 0
-        @password_flag = password.exist? ? 1 : 0
+        @user_flag = !username.nil? ? 1 : 0
+        @password_flag = !password.nil? ? 1 : 0
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0x00, @protocol.bytes.size, *@protocol.bytes, @version, ((user_flag << 7) + (password_flag << 6)), 0x00, 0x0A]
+        valiable_header = [0x00, @protocol.bytes.size, *@protocol.bytes, @version, ((@user_flag << 7) + (@password_flag << 6)), 0x00, 0x0A]
         @header = fixed_header.concat valiable_header
       end
     end
