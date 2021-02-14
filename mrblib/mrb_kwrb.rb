@@ -117,7 +117,9 @@ class Kwrb
       @socket.write header.pack('C*')
       res = @socket.read
       pingresp_packet = Kwrb::Packet::Pingresp.new
-      raise 'Failure: response is invalid when pingresq' if res != pingresp_packet.header
+      if res != pingresp_packet.header
+        raise 'Failure: response is invalid when pingresq'
+      end
     end
 
     def disconnect
