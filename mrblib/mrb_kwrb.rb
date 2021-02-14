@@ -39,7 +39,7 @@ class Kwrb
       end
 
       publish_packet = Kwrb::Packet::Publish.new(topic, qos)
-      payload = publish_packet.head.concat message
+      payload = publish_packet.header.concat message
       @socket.write payload.pack('C*')
       @messeage_id += 1
       res = @socket.read
