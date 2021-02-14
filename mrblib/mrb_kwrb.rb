@@ -10,14 +10,15 @@ class Kwrb
         raise 'Failure: client id is invalid'
       end
 
-      @username = username
-      @password = password
-
       # connect with host and send payload
       @socket = TCPSocket.open(host, port)
-      connect_packet = Kwrb::Packet::Connect.new(@username, @password)
-      payload = connect_packet.header.concat @client_id.bytes
-      @socket.write payload.pack('C*')
+      connect_packet = Kwrb::Packet::Connect.new(username, password)
+      @username = !username.nil? ? username : ''
+      @password = !password.nil? ? password : ''
+      payload = [*@client_id.bytes, *''.bytes, *''.bytes, *@username.bytes, *@password.bytes]
+      data = connect_packet.header.concat payload
+      puts data
+      @socket.write data.pack('C*')
 
       # validate connack response
       res = @socket.read
