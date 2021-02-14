@@ -4,11 +4,14 @@ class Kwrb
       @messeage_id = 0x01
     end
 
-    def self.connect(host, port = 1883, id = 'test')
+    def self.connect(host, username = nil, password = nil, port = 1883, id = 'test')
       @client_id = id.to_s
       if @client_id.empty? || @client_id.size > 23
         raise 'Failure: client id is invalid'
       end
+
+      @username = username
+      @password = password
 
       # connect with host and send payload
       @socket = TCPSocket.open(host, port)
@@ -134,15 +137,17 @@ class Kwrb
   class Packet
     class Connect
       attr_reader :header
-      def initialize
+      def initialize(username, password)
         @type = 0x01
         @dup = 0x00
         @qos = 0x00
         @retain = 0x00
         @protocol = 'MQIsdp'
         @version = 0x03
+        @user_flag = username.exist? ? 1 : 0
+        @password_flag = password.exist? ? 1 : 0
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0x00, @protocol.bytes.size, *@protocol.bytes, @version, 0x00, 0x00, 0x0A]
+        valiable_header = [0x00, @protocol.bytes.size, *@protocol.bytes, @version, ((user_flag << 7) + (password_flag << 6)), 0x00, 0x0A]
         @header = fixed_header.concat valiable_header
       end
     end
