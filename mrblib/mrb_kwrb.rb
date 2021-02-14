@@ -17,7 +17,6 @@ class Kwrb
       @password = !password.nil? ? password : ''
       payload = [*@client_id.bytes, *''.bytes, *''.bytes, *@username.bytes, *@password.bytes]
       data = connect_packet.header.concat payload
-      puts data
       @socket.write data.pack('C*')
 
       # validate connack response
