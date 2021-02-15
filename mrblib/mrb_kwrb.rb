@@ -6,7 +6,7 @@ class Kwrb
   end
   class Client
     def initialize
-      @messeage_id = 0x01
+      @messeage_id = Kwrb.encode_unsigned_short 0x01
     end
 
     def self.connect(host, username = nil, password = nil, port = 1883, id = 'test')
