@@ -8,6 +8,10 @@ class Kwrb
   def self.encode(val)
     val.pack('C*')
   end
+
+  def self.decode(val)
+    val.unpack('C*')
+  end
   class Client
     def initialize
       @messeage_id = 0x01
