@@ -1,4 +1,9 @@
 class Kwrb
+  def self.encode_unsigned_short(val)
+    raise 'Falied: value is invalid' if val > 0xffff
+
+    [val.to_i].pack('n*')
+  end
   class Client
     def initialize
       @messeage_id = 0x01
