@@ -9,6 +9,11 @@ class Kwrb
     val.pack('C*')
   end
 
+  def self.encode_word(val)
+    str = val.bytes
+    [str.size].pack('n*') + str.pack('C*')
+  end
+
   def self.decode(val)
     val.unpack('C*')
   end
@@ -23,14 +28,13 @@ class Kwrb
         raise 'Failed: client id is invalid'
       end
 
-      # connect with host and send payload
-      @socket = TCPSocket.open(host, port)
-      connect_packet = Kwrb::Packet::Connect.new(username, password)
       @username = !username.nil? ? username : ''
       @password = !password.nil? ? password : ''
-      payload = [*@client_id.bytes, *''.bytes, *''.bytes, *@username.bytes, *@password.bytes]
-      data = connect_packet.header.concat payload
-      @socket.write data.pack('C*')
+
+      # connect with host and send payload
+      @socket = TCPSocket.open(host, port)
+      connect_packet = Kwrb::Packet::Connect.new(@username, @password, @client_id)
+      @socket.write connect_packet.data
 
       # validate connack response
       res = @socket.read
@@ -149,8 +153,8 @@ class Kwrb
 
   class Packet
     class Connect
-      attr_reader :header
-      def initialize(username, password)
+      attr_reader :data
+      def initialize(username, password, client_id)
         @type = 0x01
         @dup = 0x00
         @qos = 0x00
@@ -159,9 +163,18 @@ class Kwrb
         @version = 0x03
         @user_flag = !username.nil? ? 1 : 0
         @password_flag = !password.nil? ? 1 : 0
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0x00, @protocol.bytes.size, *@protocol.bytes, @version, ((@user_flag << 7) + (@password_flag << 6)), 0x00, 0x0A]
-        @header = fixed_header.concat valiable_header
+        fixed_header = Kwrb.encode [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
+        valiable_header = ''
+        valiable_header += Kwrb.encode_word @protocol
+        valiable_header += Kwrb.encode @version
+        valiable_header += Kwrb.encode((@user_flag << 7 + @password_flag << 6))
+        valiable_header += Kwrb.encode_unsigned_short 0x0A
+        header = fixed_header + valiable_header
+        payload = ''
+        payload += Kwrb.encode_word client_id
+        payload += Kwrb.encode_word username
+        payload += Kwrb.encode_word password
+        @data = header + payload
       end
     end
     class Connack
