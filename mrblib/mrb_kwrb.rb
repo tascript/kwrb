@@ -5,7 +5,7 @@ class Kwrb
     [val.to_i].pack('n*')
   end
 
-  def self.encode(val)
+  def self.encode(*val)
     val.pack('C*')
   end
 
@@ -163,7 +163,7 @@ class Kwrb
         @version = 0x03
         @user_flag = !username.nil? ? 1 : 0
         @password_flag = !password.nil? ? 1 : 0
-        fixed_header = Kwrb.encode [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
+        fixed_header = Kwrb.encode (@type << 4) + (@dup << 3) + (@qos << 1) + @retain
         valiable_header = ''
         valiable_header += Kwrb.encode_word @protocol
         valiable_header += Kwrb.encode @version
