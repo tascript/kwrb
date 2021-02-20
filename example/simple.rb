@@ -1,3 +1,3 @@
-s = Kwrb::Client.connect('localhost')
+s = Kwrb::Client.connect('host')
 s.publish('a/b', 'Hello')
 s.disconnect
