@@ -25,7 +25,7 @@ class Kwrb
     def self.connect(host, username = nil, password = nil, port = 1883, client_id = 'test')
       @client_id = client_id.to_s
       if @client_id.empty? || @client_id.size > 23
-        raise 'Failed: client id is invalid'
+        raise 'Failed: client id length is invalid'
       end
 
       @username = !username.nil? ? username : ''
