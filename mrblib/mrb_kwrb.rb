@@ -18,18 +18,6 @@ class Kwrb
     val.unpack('C*')
   end
 
-  def self.generate_remaining_size(val)
-    size = val.bytes.size
-    digit = 0
-    loop do
-      digit = size % 128
-      size = size.div(128)
-      digit |= 0x80 if digit > 0
-      break if size <= 0
-    end
-    digit
-  end
-
   class Client
     def initialize
       @messeage_id = 0x01
@@ -165,26 +153,37 @@ class Kwrb
   end
 
   class Packet
+    def self.generate_remaining_size(val)
+      size = val.bytes.size
+      digit = 0
+      loop do
+        digit = size % 0x80
+        size = size.div(0x80)
+        digit |= 0x80 if size > 0
+        break if size <= 0
+      end
+      digit
+    end
     class Connect
       attr_reader :data
       def initialize(username, password, client_id)
         @type = 0x01
-        @remaining_size = 0x00
         @protocol = 'MQIsdp'
         @version = 0x03
         @user_flag = !username.nil? ? 1 : 0
         @password_flag = !password.nil? ? 1 : 0
-        fixed_header = Kwrb.encode(@type << 4) + Kwrb.encode(@remaining_size)
         valiable_header = ''
         valiable_header += Kwrb.encode_word @protocol
         valiable_header += Kwrb.encode @version
         valiable_header += Kwrb.encode((@user_flag << 7 + @password_flag << 6))
         valiable_header += Kwrb.encode_unsigned_short 0x0A
-        header = fixed_header + valiable_header
         payload = ''
         payload += Kwrb.encode_word client_id
         payload += Kwrb.encode_word username
         payload += Kwrb.encode_word password
+        @remaining_size = Kwrb::Packet.generate_remaining_size(valiable_header + payload)
+        fixed_header = Kwrb.encode(@type << 4) + Kwrb.encode(@remaining_size)
+        header = fixed_header + valiable_header
         @data = header + payload
       end
     end
