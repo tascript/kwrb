@@ -153,7 +153,7 @@ class Kwrb
   end
 
   class Packet
-    def self.generate_remaining_size(val)
+    def self.generate_remaining_length(val)
       size = val.bytes.size
       digit = 0
       loop do
@@ -181,8 +181,8 @@ class Kwrb
         payload += Kwrb.encode_word client_id
         payload += Kwrb.encode_word username
         payload += Kwrb.encode_word password
-        @remaining_size = Kwrb::Packet.generate_remaining_size(valiable_header + payload)
-        fixed_header = Kwrb.encode(@type << 4) + Kwrb.encode(@remaining_size)
+        @remaining_length = Kwrb::Packet.generate_remaining_length(valiable_header + payload)
+        fixed_header = Kwrb.encode(@type << 4) + Kwrb.encode(@remaining_length)
         header = fixed_header + valiable_header
         @data = header + payload
       end
