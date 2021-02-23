@@ -17,6 +17,19 @@ class Kwrb
   def self.decode(val)
     val.unpack('C*')
   end
+
+  def self.generate_remaining_size(val)
+    size = val.bytes.size
+    digit = 0
+    loop do
+      digit = size % 128
+      size = size.div(128)
+      digit |= 0x80 if digit > 0
+      break if size <= 0
+    end
+    digit
+  end
+
   class Client
     def initialize
       @messeage_id = 0x01
@@ -156,7 +169,7 @@ class Kwrb
       attr_reader :data
       def initialize(username, password, client_id)
         @type = 0x01
-        @remaining_size = 0x0f
+        @remaining_size = 0x00
         @protocol = 'MQIsdp'
         @version = 0x03
         @user_flag = !username.nil? ? 1 : 0
