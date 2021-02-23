@@ -156,11 +156,12 @@ class Kwrb
       attr_reader :data
       def initialize(username, password, client_id)
         @type = 0x01
+        @remaining_size = 0x0f
         @protocol = 'MQIsdp'
         @version = 0x03
         @user_flag = !username.nil? ? 1 : 0
         @password_flag = !password.nil? ? 1 : 0
-        fixed_header = Kwrb.encode (@type << 4)
+        fixed_header = Kwrb.encode(@type << 4) + Kwrb.encode(@remaining_size)
         valiable_header = ''
         valiable_header += Kwrb.encode_word @protocol
         valiable_header += Kwrb.encode @version
