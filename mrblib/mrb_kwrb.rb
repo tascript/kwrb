@@ -128,7 +128,7 @@ class Kwrb
         raise 'Failed: header is invalid when read unsuback'
       end
 
-      puts 'Unsucscribe is Successful'
+      puts 'Unsubscribe is Successful'
     end
 
     def pingreq
