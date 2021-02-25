@@ -12,3 +12,5 @@ MRuby::Build.new do |conf|
     conf.gem :github => 'wataru-script/kwrb'
 end
 ```
+
+## Usage
