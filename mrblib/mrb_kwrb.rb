@@ -39,6 +39,8 @@ class Kwrb
 
       # validate connack response
       res = @socket.read
+      raise 'Failed: receive invalid packet' if res.nil?
+
       res_header = res.unpack('C*')[0]
       res_code = res.unpack('C*')[1]
       connack_packet = Kwrb::Packet::Connack.new
