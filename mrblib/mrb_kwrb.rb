@@ -32,24 +32,14 @@ class Kwrb
       @username = !username.nil? ? username : ''
       @password = !password.nil? ? password : ''
 
-      # connect with host and send payload
       @socket = TCPSocket.open(host, port)
       connect_packet = Kwrb::Packet::Connect.new(@username, @password, @client_id)
       @socket.write connect_packet.data
 
-      # validate connack response
       res = @socket.read
       raise 'Failed: receive invalid packet' if res.nil?
 
-      res_header = res.unpack('C*')[0]
-      res_code = res.unpack('C*')[1]
-      connack_packet = Kwrb::Packet::Connack.new
-      if res_header != connack_packet.header
-        raise 'Failed: header is invalid when read connack'
-      end
-      raise 'Failed: response from blocker is invalid' unless res_code.zero?
-
-      Kwrb::Packet::Connack.validate_code(res_code)
+      Kwrb::Packet::Connack.validate_code(res)
 
       new
     end
@@ -190,18 +180,17 @@ class Kwrb
       end
     end
     class Connack
-      attr_reader :header
-      def initialize
-        @type = 0x02
-        @dup = 0x00
-        @qos = 0x00
-        @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
-        valiable_header = [0x00]
-        @header = fixed_header.concat valiable_header
-      end
+      def self.validate_code(binary)
+        decoded = Kwrb.decode(binary)
+        @type = 0x01 << 5
+        @remaining_length = 0x02
+        topic_name = 0x00
+        fixed_data = [@type, @remaining_length, topic_name]
+        if decoded[0..2] != fixed_data
+          raise 'Failed: packet is invalid when read connack'
+        end
 
-      def self.validate_code(code)
+        code = decoded.last
         case code
         when 0x00
           code
