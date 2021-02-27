@@ -36,11 +36,11 @@ class Kwrb
       connect_packet = Kwrb::Packet::Connect.new(@username, @password, @client_id)
       @socket.write connect_packet.data
 
-      res = @socket.read
-      raise 'Failed: receive invalid packet' if res.nil?
+      response = @socket.read
+      raise 'Failed: receive invalid response' if response.nil?
 
-      Kwrb::Packet::Connack.validate_code(res)
-
+      Kwrb::Packet::Connack.validate_code(response)
+      puts 'Connect is Successful'
       new
     end
 
@@ -193,7 +193,7 @@ class Kwrb
         code = decoded.last
         case code
         when 0x00
-          code
+          return
         when 0x01
           raise 'Connection Refused: unacceptable protocol version'
         when 0x02
