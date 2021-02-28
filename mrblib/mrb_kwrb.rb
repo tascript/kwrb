@@ -166,8 +166,8 @@ class Kwrb
         @password_flag = !password.nil? ? 1 : 0
         valiable_header = ''
         valiable_header += Kwrb.encode_word @protocol
-        valiable_header += Kwrb.encode_unsigned_short @version
-        valiable_header += Kwrb.encode((@user_flag << 7 + @password_flag << 6))
+        valiable_header += Kwrb.encode @version
+        valiable_header += Kwrb.encode((@user_flag << 7) + (@password_flag << 6))
         valiable_header += Kwrb.encode_unsigned_short 0x0A
         payload = ''
         payload += Kwrb.encode_word client_id
