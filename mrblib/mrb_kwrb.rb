@@ -156,6 +156,11 @@ class Kwrb
       end
       digit
     end
+
+    def self.validate_packet_size(val)
+      size = val.bytes.size
+      raise 'Failed: byte size is invalid' if size > 268_435_455
+    end
     class Connect
       attr_reader :data
       def initialize(username, password, client_id)
@@ -173,6 +178,7 @@ class Kwrb
         payload += Kwrb.encode_word client_id
         payload += Kwrb.encode_word username
         payload += Kwrb.encode_word password
+        Kwrb::Packet.validate_packet_size(payload)
         @remaining_length = Kwrb::Packet.generate_remaining_length(valiable_header + payload)
         fixed_header = Kwrb.encode(@type) + Kwrb.encode(@remaining_length)
         header = fixed_header + valiable_header
@@ -211,14 +217,24 @@ class Kwrb
     end
     class Publish
       attr_reader :header
-      def initialize(topic, qos)
-        @type = 0x03
-        @dup = 0x00
-        @qos = qos.to_i
-        @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0x00, topic.bytes.size, *topic.bytes, 0x00, @messeage_id]
-        @header = fixed_header.concat valiable_header
+      def initialize(topic, message, message_id, qos = 1, dup = 0, retain = 0)
+        type = 0x03 << 4
+        topic = topic.to_s
+        message = message.to_s
+        message_id = message_id.to_i
+        dup = dup.to_i << 3
+        qos = qos.to_i << 1
+        retain = retain.to_i
+        valiable_header = ''
+        valiable_header += Kwrb.encode_word topic
+        valiable_header += Kwrb.encode_unsigned_short message_id
+        payload = ''
+        payload += Kwrb.encode_word message
+        Kwrb::Packet.validate_packet_size(payload)
+        remaining_length = Kwrb::Packet.generate_remaining_length(valiable_header + payload)
+        fixed_header = Kwrb.encode(type + dup + qos + retain) + Kwrb.encode(remaining_length)
+        header = fixed_header + valiable_header
+        @data = header + payload
       end
     end
     class Puback
