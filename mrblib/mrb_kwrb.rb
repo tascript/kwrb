@@ -14,6 +14,10 @@ class Kwrb
     [str.size].pack('n*') + str.pack('C*')
   end
 
+  def self.encode_message(message)
+    [message].pack('a*')
+  end
+
   def self.decode(val)
     val.unpack('C*')
   end
@@ -221,7 +225,7 @@ class Kwrb
         valiable_header += Kwrb.encode_word topic
         valiable_header += Kwrb.encode_unsigned_short message_id
         payload = ''
-        payload += Kwrb.encode_word message
+        payload += Kwrb.encode_message message
         Kwrb::Packet.validate_packet_size(payload)
         remaining_length = Kwrb::Packet.generate_remaining_length(valiable_header + payload)
         fixed_header = Kwrb.encode(type + dup + qos + retain) + Kwrb.encode(remaining_length)
@@ -234,7 +238,7 @@ class Kwrb
         decoded = Kwrb.decode(binary)
         type = 0x04 << 4
         remaining_length = 0x02
-        fixed_data = [type, remaining_length, 0x00, message_id.bytes.length]
+        fixed_data = [type, remaining_length, 0x00, message_id]
         if decoded != fixed_data
           raise 'Failed: packet is invalid when read Puback'
         end
@@ -245,7 +249,7 @@ class Kwrb
         decoded = Kwrb.decode(binary)
         type = 0x05 << 4
         remaining_length = 0x02
-        fixed_data = [type, remaining_length, 0x00, message_id.bytes.length]
+        fixed_data = [type, remaining_length, 0x00, message_id]
         if decoded != fixed_data
           raise 'Failed: packet is invalid when read Pubrec'
         end
