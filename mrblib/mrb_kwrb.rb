@@ -62,13 +62,10 @@ class Kwrb
       when 0x02
         Kwrb::Packet::Pubrec.validate_packet(response, @message_id)
 
-        pubrel_packet = Kwrb::Packet::Pubrel.new
-        @socket.write pubrel_packet.header.pack('C*')
-        pubcomp_res = @socket.read
-        pubcomp_packet = Kwrb::Packet::Pubcomp.new
-        if pubcomp_res != pubcomp_packet.header
-          raise 'Failed: response from blocker is invalid when get pubcomp'
-        end
+        pubrel_packet = Kwrb::Packet::Pubrel.new(@message_id)
+        @socket.write pubrel_packet.data
+        pubrel_response = @socket.read
+        Kwrb::Packet::Pubcomp.validate_packet(pubrel_response, @message_id)
       else
         raise "Failed: qos flag #{qos} is invalid"
       end
@@ -254,27 +251,26 @@ class Kwrb
       end
     end
     class Pubrel
-      attr_reader :header
-      def initialize
-        @type = 0x06
-        @dup = 0x00
-        @qos = 0x01
-        @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x01]
-        valiable_header = [0x00, @message_id]
-        @header = fixed_header.concat valiable_header
+      attr_reader :data
+      def self.validate_packet(binary, message_id)
+        decoded = Kwrb.decode(binary)
+        type = 0x06 << 4
+        remaining_length = 0x02
+        fixed_data = [type, remaining_length, 0x00, message_id.bytes.length]
+        if decoded != fixed_data
+          raise 'Failed: packet is invalid when read Pubrec'
+        end
       end
     end
     class Pubcomp
-      attr_reader :header
-      def initialize
-        @type = 0x07
-        @dup = 0x00
-        @qos = 0x00
-        @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x01]
-        valiable_header = [0x00, @message_id]
-        @header = fixed_header.concat valiable_header
+      def self.validate_packet(binary, message_id)
+        decoded = Kwrb.decode(binary)
+        type = 0x07 << 4
+        remaining_length = 0x02
+        fixed_data = [type, remaining_length, 0x00, message_id.bytes.length]
+        if decoded != fixed_data
+          raise 'Failed: packet is invalid when read Pubcomp'
+        end
       end
     end
     class Subscribe
