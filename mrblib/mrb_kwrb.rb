@@ -165,19 +165,19 @@ class Kwrb
         @version = 0x03
         @user_flag = !username.nil? ? 1 : 0
         @password_flag = !password.nil? ? 1 : 0
-        valiable_header = ''
-        valiable_header += Kwrb.encode_word @protocol
-        valiable_header += Kwrb.encode @version
-        valiable_header += Kwrb.encode((@user_flag << 7) + (@password_flag << 6))
-        valiable_header += Kwrb.encode_unsigned_short 0x0A
+        variable_header = ''
+        variable_header += Kwrb.encode_word @protocol
+        variable_header += Kwrb.encode @version
+        variable_header += Kwrb.encode((@user_flag << 7) + (@password_flag << 6))
+        variable_header += Kwrb.encode_unsigned_short 0x0A
         payload = ''
         payload += Kwrb.encode_word client_id
         payload += Kwrb.encode_word username
         payload += Kwrb.encode_word password
-        Kwrb::Packet.validate_packet_size(payload)
-        @remaining_length = Kwrb::Packet.generate_remaining_length(valiable_header + payload)
+        Kwrb::Packet.validate_packet_size(variable_header + payload)
+        @remaining_length = Kwrb::Packet.generate_remaining_length(variable_header + payload)
         fixed_header = Kwrb.encode(@type) + Kwrb.encode(@remaining_length)
-        header = fixed_header + valiable_header
+        header = fixed_header + variable_header
         @data = header + payload
       end
     end
@@ -221,15 +221,15 @@ class Kwrb
         topic = topic.to_s
         message = message.to_s
         message_id = message_id.to_i
-        valiable_header = ''
-        valiable_header += Kwrb.encode_word topic
-        valiable_header += Kwrb.encode_unsigned_short message_id
+        variable_header = ''
+        variable_header += Kwrb.encode_word topic
+        variable_header += Kwrb.encode_unsigned_short message_id
         payload = ''
         payload += Kwrb.encode_message message
-        Kwrb::Packet.validate_packet_size(payload)
-        remaining_length = Kwrb::Packet.generate_remaining_length(valiable_header + payload)
+        Kwrb::Packet.validate_packet_size(variable_header + payload)
+        remaining_length = Kwrb::Packet.generate_remaining_length(variable_header + payload)
         fixed_header = Kwrb.encode(type + dup + qos + retain) + Kwrb.encode(remaining_length)
-        header = fixed_header + valiable_header
+        header = fixed_header + variable_header
         @data = header + payload
       end
     end
@@ -286,8 +286,8 @@ class Kwrb
         @qos = 0x01
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0x00, @message_id]
-        @header = fixed_header.concat valiable_header
+        variable_header = [0x00, @message_id]
+        @header = fixed_header.concat variable_header
       end
     end
     class Suback
@@ -298,8 +298,8 @@ class Kwrb
         @qos = 0x00
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0x00, @message_id]
-        @header = fixed_header.concat valiable_header
+        variable_header = [0x00, @message_id]
+        @header = fixed_header.concat variable_header
       end
     end
     class Unsubscribe
@@ -310,8 +310,8 @@ class Kwrb
         @qos = 0x01
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0x00, @message_id]
-        @header = fixed_header.concat valiable_header
+        variable_header = [0x00, @message_id]
+        @header = fixed_header.concat variable_header
       end
     end
     class Unsuback
@@ -322,8 +322,8 @@ class Kwrb
         @qos = 0x01
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
-        valiable_header = [0x00, @message_id]
-        @header = fixed_header.concat valiable_header
+        variable_header = [0x00, @message_id]
+        @header = fixed_header.concat variable_header
       end
     end
     class Pingreq
