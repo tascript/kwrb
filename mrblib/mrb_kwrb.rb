@@ -54,9 +54,7 @@ class Kwrb
 
       publish_packet = Kwrb::Packet::Publish.new(topic, message, @message_id, qos)
       @socket.write publish_packet.data
-      p publish_packet.data
       response = @socket.read
-      p response
       case qos
       when 0x00
         return
