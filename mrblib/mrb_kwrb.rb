@@ -20,7 +20,7 @@ class Kwrb
 
   class Client
     def initialize
-      @messeage_id = 0x01
+      @message_id = 0x01
     end
 
     def self.connect(host, username = nil, password = nil, port = 1883, client_id = 'test_client')
@@ -39,7 +39,7 @@ class Kwrb
       response = @socket.read
       raise 'Failed: receive invalid response' if response.nil?
 
-      Kwrb::Packet::Connack.validate_code(response)
+      Kwrb::Packet::Connack.validate_packet(response)
       puts 'Connect is Successful'
       new
     end
@@ -53,14 +53,14 @@ class Kwrb
 
       publish_packet = Kwrb::Packet::Publish.new(topic, message, @message_id, qos)
       @socket.write publish_packet.data
-      @messeage_id += 1
+      @message_id += 1
       res = @socket.read
       case qos
       when 0x00
         return
       when 0x01
         puback_packet = Kwrb::Packet::Puback.new
-        if res != puback_packet.header
+        if res != puback_packet.data
           raise 'Failed: response from blocker is invalid when get puback'
         end
       when 0x02
@@ -186,14 +186,14 @@ class Kwrb
       end
     end
     class Connack
-      def self.validate_code(binary)
+      def self.validate_packet(binary)
         decoded = Kwrb.decode(binary)
         @type = 0x01 << 5
         @remaining_length = 0x02
         topic_name = 0x00
         fixed_data = [@type, @remaining_length, topic_name]
         if decoded[0..2] != fixed_data
-          raise 'Failed: packet is invalid when read connack'
+          raise 'Failed: packet is invalid when read Connack'
         end
 
         code = decoded.last
@@ -238,27 +238,25 @@ class Kwrb
       end
     end
     class Puback
-      attr_reader :header
-      def initialize
-        @type = 0x04
-        @dup = 0x00
-        @qos = 0x00
-        @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
-        valiable_header = [0x00, @messeage_id]
-        @header = fixed_header.concat valiable_header
+      def self.validate_packet(binary, message_id)
+        decoded = Kwrb.decode(binary)
+        type = 0x04 << 4
+        remaining_length = 0x02
+        fixed_data = [type, remaining_length, 0x00, message_id.bytes.length]
+        if decoded != fixed_data
+          raise 'Failed: packet is invalid when read Puback'
+        end
       end
     end
     class Pubrec
-      attr_reader :header
-      def initialize
-        @type = 0x05
-        @dup = 0x00
-        @qos = 0x00
-        @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x01]
-        valiable_header = [0x00, @messeage_id]
-        @header = fixed_header.concat valiable_header
+      def self.validate_packet(binary, message_id)
+        decoded = Kwrb.decode(binary)
+        type = 0x05 << 4
+        remaining_length = 0x02
+        fixed_data = [type, remaining_length, 0x00, message_id.bytes.length]
+        if decoded != fixed_data
+          raise 'Failed: packet is invalid when read Pubrec'
+        end
       end
     end
     class Pubrel
@@ -269,7 +267,7 @@ class Kwrb
         @qos = 0x01
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x01]
-        valiable_header = [0x00, @messeage_id]
+        valiable_header = [0x00, @message_id]
         @header = fixed_header.concat valiable_header
       end
     end
@@ -281,7 +279,7 @@ class Kwrb
         @qos = 0x00
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x01]
-        valiable_header = [0x00, @messeage_id]
+        valiable_header = [0x00, @message_id]
         @header = fixed_header.concat valiable_header
       end
     end
@@ -293,7 +291,7 @@ class Kwrb
         @qos = 0x01
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0x00, @messeage_id]
+        valiable_header = [0x00, @message_id]
         @header = fixed_header.concat valiable_header
       end
     end
@@ -305,7 +303,7 @@ class Kwrb
         @qos = 0x00
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0x00, @messeage_id]
+        valiable_header = [0x00, @message_id]
         @header = fixed_header.concat valiable_header
       end
     end
@@ -317,7 +315,7 @@ class Kwrb
         @qos = 0x01
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        valiable_header = [0x00, @messeage_id]
+        valiable_header = [0x00, @message_id]
         @header = fixed_header.concat valiable_header
       end
     end
@@ -329,7 +327,7 @@ class Kwrb
         @qos = 0x01
         @retain = 0x00
         fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
-        valiable_header = [0x00, @messeage_id]
+        valiable_header = [0x00, @message_id]
         @header = fixed_header.concat valiable_header
       end
     end
