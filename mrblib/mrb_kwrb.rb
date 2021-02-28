@@ -19,8 +19,9 @@ class Kwrb
   end
 
   class Client
-    def initialize
+    def initialize(socket)
       @message_id = 0x01
+      @socket = socket
     end
 
     def self.connect(host, username = nil, password = nil, port = 1883, client_id = 'test_client')
@@ -32,16 +33,16 @@ class Kwrb
       @username = !username.nil? ? username : ''
       @password = !password.nil? ? password : ''
 
-      @socket = TCPSocket.open(host, port)
+      socket = TCPSocket.open(host, port)
       connect_packet = Kwrb::Packet::Connect.new(@username, @password, @client_id)
-      @socket.write connect_packet.data
+      socket.write connect_packet.data
 
-      response = @socket.read
+      response = socket.read
       raise 'Failed: receive invalid response' if response.nil?
 
       Kwrb::Packet::Connack.validate_packet(response)
       puts 'Connect is Successful'
-      new
+      new socket
     end
 
     def publish(topic, message, qos = 0x00)
@@ -53,7 +54,9 @@ class Kwrb
 
       publish_packet = Kwrb::Packet::Publish.new(topic, message, @message_id, qos)
       @socket.write publish_packet.data
+      p publish_packet.data
       response = @socket.read
+      p response
       case qos
       when 0x00
         return
@@ -179,7 +182,7 @@ class Kwrb
     class Connack
       def self.validate_packet(binary)
         decoded = Kwrb.decode(binary)
-        @type = 0x01 << 5
+        @type = 0x02 << 4
         @remaining_length = 0x02
         topic_name = 0x00
         fixed_data = [@type, @remaining_length, topic_name]
