@@ -47,13 +47,12 @@ class Kwrb
     def publish(topic, message, qos = 0x00)
       raise 'Failed: topic is invalid when publish message' if topic.nil?
       raise 'Failed: message is invalid when publish message' if message.nil?
-      if qos.negative? || qos > 0x03
+      if qos.negative? || qos >= 0x03
         raise 'Failed: qos is invalid when publish message'
       end
 
-      publish_packet = Kwrb::Packet::Publish.new(topic, qos)
-      payload = publish_packet.header.concat message
-      @socket.write payload.pack('C*')
+      publish_packet = Kwrb::Packet::Publish.new(topic, message, @message_id, qos)
+      @socket.write publish_packet.data
       @messeage_id += 1
       res = @socket.read
       case qos
@@ -80,6 +79,7 @@ class Kwrb
       else
         raise "Failed: qos flag #{qos} is invalid"
       end
+      puts message
     end
 
     def subscribe(topic)
@@ -216,7 +216,7 @@ class Kwrb
       end
     end
     class Publish
-      attr_reader :header
+      attr_reader :data
       def initialize(topic, message, message_id, qos = 1, dup = 0, retain = 0)
         type = 0x03 << 4
         topic = topic.to_s
