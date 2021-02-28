@@ -209,14 +209,14 @@ class Kwrb
     end
     class Publish
       attr_reader :data
-      def initialize(topic, message, message_id, qos = 1, dup = 0, retain = 0)
+      def initialize(topic, message, message_id, qos = 0x00, dup = 0x00, retain = 0x00)
         type = 0x03 << 4
-        topic = topic.to_s
-        message = message.to_s
-        message_id = message_id.to_i
         dup = dup.to_i << 3
         qos = qos.to_i << 1
         retain = retain.to_i
+        topic = topic.to_s
+        message = message.to_s
+        message_id = message_id.to_i
         valiable_header = ''
         valiable_header += Kwrb.encode_word topic
         valiable_header += Kwrb.encode_unsigned_short message_id
