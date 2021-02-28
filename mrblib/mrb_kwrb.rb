@@ -159,7 +159,7 @@ class Kwrb
     class Connect
       attr_reader :data
       def initialize(username, password, client_id)
-        @type = 0x01
+        @type = 0x01 << 4
         @protocol = 'MQIsdp'
         @version = 0x03
         @user_flag = !username.nil? ? 1 : 0
@@ -174,7 +174,7 @@ class Kwrb
         payload += Kwrb.encode_word username
         payload += Kwrb.encode_word password
         @remaining_length = Kwrb::Packet.generate_remaining_length(valiable_header + payload)
-        fixed_header = Kwrb.encode(@type << 4) + Kwrb.encode(@remaining_length)
+        fixed_header = Kwrb.encode(@type) + Kwrb.encode(@remaining_length)
         header = fixed_header + valiable_header
         @data = header + payload
       end
