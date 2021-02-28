@@ -72,7 +72,7 @@ class Kwrb
         pubrel_response = @socket.read
         Kwrb::Packet::Pubcomp.validate_packet(pubrel_response, @message_id)
       else
-        raise "Failed: qos flag #{qos} is invalid"
+        raise "Failed: qos level #{qos} is invalid"
       end
       @message_id += 1
       puts message
