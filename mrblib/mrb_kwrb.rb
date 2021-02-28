@@ -53,21 +53,14 @@ class Kwrb
 
       publish_packet = Kwrb::Packet::Publish.new(topic, message, @message_id, qos)
       @socket.write publish_packet.data
-      @message_id += 1
-      res = @socket.read
+      response = @socket.read
       case qos
       when 0x00
         return
       when 0x01
-        puback_packet = Kwrb::Packet::Puback.new
-        if res != puback_packet.data
-          raise 'Failed: response from blocker is invalid when get puback'
-        end
+        Kwrb::Packet::Puback.validate_packet(response, @message_id)
       when 0x02
-        pubrec_packet = Kwrb::Packet::Pubrec.new
-        if res != pubrec_packet.header
-          raise 'Failed: response from blocker is invalid when get pubrec'
-        end
+        Kwrb::Packet::Pubrec.validate_packet(response, @message_id)
 
         pubrel_packet = Kwrb::Packet::Pubrel.new
         @socket.write pubrel_packet.header.pack('C*')
@@ -79,6 +72,7 @@ class Kwrb
       else
         raise "Failed: qos flag #{qos} is invalid"
       end
+      @message_id += 1
       puts message
     end
 
