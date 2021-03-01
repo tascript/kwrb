@@ -81,12 +81,10 @@ class Kwrb
     def subscribe(topic)
       raise 'Failed: topic is invalid when subscribe message' if topic.nil?
 
-      packet = Kwrb::Packet::Subscribe.new
-      header = packet.header
+      packet = Kwrb::Packet::Subscribe.new(topic, message_id)
 
       # FIXME: create payload for multiple topics
-      payload = [*header, topic.bytes.size, *topic.bytes, 0x02]
-      @socket.write payload.pack('C*')
+      @socket.write packet.data
 
       res = @socket.read
       res_header = res.unpack('C*')[0..2]
@@ -279,15 +277,22 @@ class Kwrb
       end
     end
     class Subscribe
-      attr_reader :header
-      def initialize
-        @type = 0x08
-        @dup = 0x00
-        @qos = 0x01
-        @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        variable_header = [0x00, @message_id]
-        @header = fixed_header.concat variable_header
+      attr_reader :data
+      def initialize(topic, message_id)
+        type = 0x08 << 4
+        dup = 0x00 << 3
+        qos = 0x01
+        retain = 0x00
+        message_id = message_id.to_i
+        variable_header = ''
+        variable_header += Kwrb.encode_unsigned_short message_id
+        payload = ''
+        payload += Kwrb.encode_word topic
+        payload += Kwrb.encode_unsigned_short qos
+        Kwrb::Packet.validate_packet_size(variable_header + payload)
+        remaining_length = Kwrb::Packet.generate_remaining_length(variable_header + payload)
+        fixed_header = Kwrb.encode(type + dup + (qos << 1) + retain) + Kwrb.encode(remaining_length)
+        @data = fixed_header + variable_header + payload
       end
     end
     class Suback
