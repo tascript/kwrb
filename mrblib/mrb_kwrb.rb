@@ -92,22 +92,16 @@ class Kwrb
       puts "Sucscribe is Successful: subscribe #{topic} and qos level is #{qos}"
     end
 
-    def unsubscribe
+    def unsubscribe(topic)
       raise 'Failed: topic is invalid when unsubscribe message' if topic.nil?
 
-      packet = Kwrb::Packet::Unsubscribe.new
-      header = packet.header
+      packet = Kwrb::Packet::Unsubscribe.new(topic, @message_id)
 
       # FIXME: create payload for multiple topics
-      payload = [*header, 0x00, topic.bytes.size, *topic.bytes, 0x01]
-      @socket.write payload.pack('C*')
+      @socket.write packet.data
 
-      res = @socket.read
-      res_header = res.unpack('C*')
-      unsuback_packet = Kwrb::Packet::Unsuback.new
-      if res_header != unsuback_packet.header
-        raise 'Failed: header is invalid when read unsuback'
-      end
+      response = @socket.read
+      Kwrb::Packet::Unsuback.validate_packet(response, @message_id)
 
       puts 'Unsubscribe is Successful'
     end
@@ -301,27 +295,29 @@ class Kwrb
       end
     end
     class Unsubscribe
-      attr_reader :header
-      def initialize
-        @type = 0x0A
-        @dup = 0x00
-        @qos = 0x01
-        @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        variable_header = [0x00, @message_id]
-        @header = fixed_header.concat variable_header
+      attr_reader :data
+      def initialize(topic, message_id)
+        type = 0x0A << 4
+        qos = 0x01
+        message_id = message_id.to_i
+        variable_header = Kwrb.encode_unsigned_short message_id
+        payload = ''
+        payload += Kwrb.encode_word topic
+        payload += Kwrb.encode_unsigned_short qos
+        Kwrb::Packet.validate_packet_size(variable_header + payload)
+        remaining_length = Kwrb::Packet.generate_remaining_length(variable_header + payload)
+        fixed_header = Kwrb.encode(type + dup + (qos << 1) + retain) + Kwrb.encode(remaining_length)
+        @data = fixed_header + variable_header + payload
       end
     end
     class Unsuback
-      attr_reader :header
-      def initialize
-        @type = 0x0B
-        @dup = 0x00
-        @qos = 0x01
-        @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x02]
-        variable_header = [0x00, @message_id]
-        @header = fixed_header.concat variable_header
+      def self.validate_packet(_response, _message_id)
+        type = 0x0B
+        remaining_length = 0x02
+        fixed_data = [type, remaining_length, 0x00, message_id]
+        if decoded != fixed_data
+          raise 'Failed: packet is invalid when read Unsuback'
+        end
       end
     end
     class Pingreq
