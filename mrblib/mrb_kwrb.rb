@@ -78,7 +78,7 @@ class Kwrb
       puts message
     end
 
-    def subscribe(topic)
+    def subscribe(topic, qos)
       raise 'Failed: topic is invalid when subscribe message' if topic.nil?
 
       packet = Kwrb::Packet::Subscribe.new(topic, message_id)
@@ -86,10 +86,8 @@ class Kwrb
       # FIXME: create payload for multiple topics
       @socket.write packet.data
 
-      res = @socket.read
-      res_header = res.unpack('C*')[0..2]
-      res_payload = res.unpack('C*')[3]
-      suback_packet = Kwrb::Packet::Suback.new
+      response = @socket.read
+      suback_packet = Kwrb::Packet::Suback.validate_packet(response, @message_id, qos)
       if res_header != suback_packet.header
         raise 'Failed: header is invalid when read suback'
       end
@@ -259,7 +257,7 @@ class Kwrb
         decoded = Kwrb.decode(binary)
         type = 0x06 << 4
         remaining_length = 0x02
-        fixed_data = [type, remaining_length, 0x00, message_id.bytes.length]
+        fixed_data = [type, remaining_length, 0x00, message_id]
         if decoded != fixed_data
           raise 'Failed: packet is invalid when read Pubrec'
         end
@@ -270,7 +268,7 @@ class Kwrb
         decoded = Kwrb.decode(binary)
         type = 0x07 << 4
         remaining_length = 0x02
-        fixed_data = [type, remaining_length, 0x00, message_id.bytes.length]
+        fixed_data = [type, remaining_length, 0x00, message_id]
         if decoded != fixed_data
           raise 'Failed: packet is invalid when read Pubcomp'
         end
@@ -296,15 +294,14 @@ class Kwrb
       end
     end
     class Suback
-      attr_reader :header
-      def initialize
-        @type = 0x09
-        @dup = 0x00
-        @qos = 0x00
-        @retain = 0x00
-        fixed_header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain]
-        variable_header = [0x00, @message_id]
-        @header = fixed_header.concat variable_header
+      def self.validate_packet(binary, message_id, qos)
+        decoded = Kwrb.decode(binary)
+        type = 0x09 << 4
+        remaining_length = 0x03
+        fixed_data = [type, remaining_length, 0x00, message_id, qos]
+        if decoded != fixed_data
+          raise 'Failed: packet is invalid when read Suback'
+        end
       end
     end
     class Unsubscribe
