@@ -87,13 +87,9 @@ class Kwrb
       @socket.write packet.data
 
       response = @socket.read
-      suback_packet = Kwrb::Packet::Suback.validate_packet(response, @message_id, qos)
-      if res_header != suback_packet.header
-        raise 'Failed: header is invalid when read suback'
-      end
-      raise 'Failed: packet is invalid when read suback' if res_payload > 0x03
+      Kwrb::Packet::Suback.validate_packet(response, @message_id, qos)
 
-      puts "Sucscribe is Successful: subscribe #{topic} and qos level is #{res_payload}"
+      puts "Sucscribe is Successful: subscribe #{topic} and qos level is #{qos}"
     end
 
     def unsubscribe
