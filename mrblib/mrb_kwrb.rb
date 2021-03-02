@@ -108,19 +108,14 @@ class Kwrb
 
     def pingreq
       packet = Kwrb::Packet::Pingreq.new
-      header = packet.header
-      @socket.write header.pack('C*')
-      res = @socket.read
-      pingresp_packet = Kwrb::Packet::Pingresp.new
-      if res != pingresp_packet.header
-        raise 'Failed: response is invalid when pingresq'
-      end
+      @socket.write packet.data
+      response = @socket.read
+      Kwrb::Packet::Pingresp.validate_packet(response)
     end
 
     def disconnect
       packet = Kwrb::Packet::Disconnect.new
-      header = packet.header
-      @socket.write header.pack('C*')
+      @socket.write packet.data
       @socket.close
       puts 'Disconnect is Successful'
     end
@@ -311,7 +306,8 @@ class Kwrb
       end
     end
     class Unsuback
-      def self.validate_packet(_response, _message_id)
+      def self.validate_packet(binary, message_id)
+        decoded = Kwrb.decode(binary)
         type = 0x0B
         remaining_length = 0x02
         fixed_data = [type, remaining_length, 0x00, message_id]
@@ -321,33 +317,35 @@ class Kwrb
       end
     end
     class Pingreq
-      attr_reader :header
+      attr_reader :data
       def initialize
-        @type = 0x0C
-        @dup = 0x00
-        @qos = 0x00
-        @retain = 0x00
-        @header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x00]
+        type = 0x0C << 4
+        dup = 0x00  << 3
+        qos = 0x00 << 1
+        retain = 0x00
+        remaining_length = 0x00
+        fixed_header = Kwrb.encode(type + dup + qos + retain) + Kwrb.encode(remaining_length)
+        @data = fixed_header
       end
     end
     class Pingresp
-      attr_reader :header
-      def initialize
-        @type = 0x0D
-        @dup = 0x00
-        @qos = 0x00
-        @retain = 0x00
-        @header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x00]
+      def self.validate_packet(binary)
+        decoded = Kwrb.decode(binary)
+        type = 0x0D << 4
+        remaining_length = 0x00
+        fixed_data = [type, remaining_length]
+        if decoded != fixed_data
+          raise 'Failed: packet is invalid when read Pingresp'
+        end
       end
     end
     class Disconnect
-      attr_reader :header
+      attr_reader :data
       def initialize
-        @type = 0x0E
-        @dup = 0x00
-        @qos = 0x00
-        @retain = 0x00
-        @header = [(@type << 4) + (@dup << 3) + (@qos << 1) + @retain, 0x00]
+        type = 0x0E << 4
+        remaining_length = 0x00
+        fixed_header = Kwrb.encode(type) + Kwrb.encode(remaining_length)
+        @data = fixed_header
       end
     end
   end
