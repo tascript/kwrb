@@ -81,7 +81,7 @@ class Kwrb
     def subscribe(topic, qos)
       raise 'Failed: topic is invalid when subscribe message' if topic.nil?
 
-      packet = Kwrb::Packet::Subscribe.new(topic, message_id)
+      packet = Kwrb::Packet::Subscribe.new(topic, @message_id)
 
       # FIXME: create payload for multiple topics
       @socket.write packet.data
