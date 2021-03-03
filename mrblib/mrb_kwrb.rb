@@ -271,7 +271,7 @@ class Kwrb
         variable_header += Kwrb.encode_unsigned_short message_id
         payload = ''
         payload += Kwrb.encode_word topic
-        payload += Kwrb.encode_unsigned_short qos
+        payload += Kwrb.encode qos
         Kwrb::Packet.validate_packet_size(variable_header + payload)
         remaining_length = Kwrb::Packet.generate_remaining_length(variable_header + payload)
         fixed_header = Kwrb.encode(type + dup + (qos << 1) + retain) + Kwrb.encode(remaining_length)
