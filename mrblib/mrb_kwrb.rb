@@ -205,8 +205,7 @@ class Kwrb
         variable_header = ''
         variable_header += Kwrb.encode_word topic
         variable_header += Kwrb.encode_unsigned_short message_id
-        payload = ''
-        payload += Kwrb.encode_message message
+        payload = Kwrb.encode_message message
         Kwrb::Packet.validate_packet_size(variable_header + payload)
         remaining_length = Kwrb::Packet.generate_remaining_length(variable_header + payload)
         fixed_header = Kwrb.encode(type + dup + qos + retain) + Kwrb.encode(remaining_length)
