@@ -92,6 +92,12 @@ class Kwrb
       puts "Sucscribe is Successful: subscribe #{topic} and qos level is #{qos}"
     end
 
+    def read_message(topic, qos)
+      raise 'Failed: topic is invalid when read message' if topic.nil?
+
+      subscribe(topic, qos)
+    end
+
     def unsubscribe(topic)
       raise 'Failed: topic is invalid when unsubscribe message' if topic.nil?
 
