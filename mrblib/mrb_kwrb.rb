@@ -96,6 +96,7 @@ class Kwrb
       raise 'Failed: topic is invalid when read message' if topic.nil?
 
       subscribe(topic, qos)
+      @socket.read
     end
 
     def unsubscribe(topic)
