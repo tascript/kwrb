@@ -1,5 +1,5 @@
 name: kwrb
-description: Kwrb class
+description: Kwrb is MQTT client for mruby
 author: Wataru Morita
 website: https://github.com/wataru-script/kwrb
 protocol: git
