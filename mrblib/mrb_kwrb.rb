@@ -78,10 +78,10 @@ class Kwrb
       puts message
     end
 
-    def subscribe(topic, qos)
+    def subscribe(topic, qos = 0x00)
       raise 'Failed: topic is invalid when subscribe message' if topic.nil?
 
-      packet = Kwrb::Packet::Subscribe.new(topic, @message_id)
+      packet = Kwrb::Packet::Subscribe.new(topic, @message_id, qos)
 
       # FIXME: create payload for multiple topics
       @socket.write packet.data
@@ -269,10 +269,9 @@ class Kwrb
     end
     class Subscribe
       attr_reader :data
-      def initialize(topic, message_id)
+      def initialize(topic, message_id, qos)
         type = 0x08 << 4
         dup = 0x00 << 3
-        qos = 0x01
         retain = 0x00
         message_id = message_id.to_i
         variable_header = ''
