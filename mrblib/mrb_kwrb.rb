@@ -27,6 +27,7 @@ class Kwrb
       @message_id = 0x01
       @socket = socket
       # FIXME: generate thread for read
+      @queue = Queue.new
     end
 
     def self.connect(host, username = nil, password = nil, port = 1883, client_id = 'test_client')
