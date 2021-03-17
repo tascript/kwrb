@@ -23,15 +23,19 @@ class Kwrb
   end
 
   class Client
+    TIMEOUT = 1
     def initialize(socket)
       @message_id = 0x01
       @socket = socket
       @queue = Queue.new
       @fiber = Fiber.new do
         until @socket.closed?
-          res = @socket.read
-          unless res.empty?
-            @queue.push(res)
+          res = IO.select [@socket], [], [], TIMEOUT
+          next if res.nil?
+
+          packet = @socket.read
+          unless packet.empty?
+            @queue.push(packet)
             Fiber.yield
           end
         end
