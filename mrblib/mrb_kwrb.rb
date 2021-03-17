@@ -26,7 +26,6 @@ class Kwrb
     def initialize(socket)
       @message_id = 0x01
       @socket = socket
-      # FIXME: generate thread for read
       @queue = Queue.new
       @thread = Thread.new
     end
