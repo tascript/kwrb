@@ -27,7 +27,15 @@ class Kwrb
       @message_id = 0x01
       @socket = socket
       @queue = Queue.new
-      @thread = Thread.new
+      @fiber = Fiber.new do
+        until @socket.closed?
+          res = @socket.read
+          unless res.empty?
+            @queue.push(res)
+            Fiber.yield
+          end
+        end
+      end
     end
 
     def self.connect(host, username = nil, password = nil, port = 1883, client_id = 'test_client')
@@ -60,7 +68,9 @@ class Kwrb
 
       publish_packet = Kwrb::Packet::Publish.new(topic, message, @message_id, qos)
       @socket.write publish_packet.data
-      response = @socket.read
+      @fiber.resume
+
+      response = @queue.pop
       case qos
       when 0x00
         return
@@ -87,8 +97,9 @@ class Kwrb
 
       # FIXME: create payload for multiple topics
       @socket.write packet.data
+      @fiber.resume
 
-      response = @socket.read
+      response = @queue.pop
       Kwrb::Packet::Suback.validate_packet(response, @message_id, qos)
 
       puts "Sucscribe is Successful: subscribe #{topic} and qos level is #{qos}"
