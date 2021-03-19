@@ -9,7 +9,7 @@ MRuby::Build.new do |conf|
 
     # ... (snip) ...
 
-    conf.gem :github => 'wataru-script/kwrb'
+    conf.gem :github => 'tascript/kwrb'
 end
 ```
 
