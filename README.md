@@ -15,7 +15,8 @@ end
 
 ## Usage
 
+**connect**
+
 ```ruby
 s = Kwrb::Client.connect('host')
-s.disconnect
 ```
