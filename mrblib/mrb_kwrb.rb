@@ -22,6 +22,10 @@ class Kwrb
     val.unpack('C*')
   end
 
+  def self.increment(val)
+    val > 0xff ? 0x01 : val + 1
+  end
+
   class Client
     TIMEOUT = 1
     def initialize(socket)
@@ -90,7 +94,7 @@ class Kwrb
       else
         raise "Failed: qos level #{qos} is invalid"
       end
-      @message_id += 1
+      Kwrb.increment(@message_id)
       puts message
     end
 
