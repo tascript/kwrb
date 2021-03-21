@@ -38,10 +38,8 @@ class Kwrb
           next if res.nil?
 
           packet = @socket.read
-          unless packet.empty?
-            @queue.push(packet)
-            Fiber.yield
-          end
+          @queue.push(packet)
+          Fiber.yield
         end
       end
     end
@@ -76,26 +74,29 @@ class Kwrb
 
       publish_packet = Kwrb::Packet::Publish.new(topic, message, @message_id, qos)
       @socket.write publish_packet.data
-      @fiber.resume
+      return if qos.zero?
 
-      response = @queue.pop
-      case qos
-      when 0x00
-        return
-      when 0x01
-        Kwrb::Packet::Puback.validate_packet(response, @message_id)
-      when 0x02
-        Kwrb::Packet::Pubrec.validate_packet(response, @message_id)
+      loop do
+        @fiber.resume
+        response = @queue.pop
+        next if response.empty?
 
-        pubrel_packet = Kwrb::Packet::Pubrel.new(@message_id)
-        @socket.write pubrel_packet.data
-        pubrel_response = @socket.read
-        Kwrb::Packet::Pubcomp.validate_packet(pubrel_response, @message_id)
-      else
-        raise "Failed: qos level #{qos} is invalid"
+        case qos
+        when 0x01
+          Kwrb::Packet::Puback.validate_packet(response, @message_id)
+        when 0x02
+          Kwrb::Packet::Pubrec.validate_packet(response, @message_id)
+
+          pubrel_packet = Kwrb::Packet::Pubrel.new(@message_id)
+          @socket.write pubrel_packet.data
+          pubrel_response = @socket.read
+          Kwrb::Packet::Pubcomp.validate_packet(pubrel_response, @message_id)
+        else
+          raise "Failed: qos level #{qos} is invalid"
+        end
+        Kwrb.increment(@message_id)
+        puts message
       end
-      Kwrb.increment(@message_id)
-      puts message
     end
 
     def subscribe(topic, qos = 0x00)
