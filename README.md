@@ -13,10 +13,17 @@ MRuby::Build.new do |conf|
 end
 ```
 
-## Usage
+## usage
 
 **connect**
 
 ```ruby
 s = Kwrb::Client.connect('host')
+```
+
+**disconnect**
+
+```ruby
+s = Kwrb::Client.connect('host')
+s.disconnect
 ```
