@@ -19,7 +19,7 @@ void mrb_kwrb_gem_init(mrb_state *mrb)
   kwrb = mrb_define_class(mrb, "Kwrb", mrb->object_class);
   mrb_define_method(mrb, kwrb, "initialize", mrb_kwrb_init, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, kwrb, "hello", mrb_kwrb_hello, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, kwrb, "hi", mrb_kwrb_hi, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, kwrb, "read_message", mrb_read_message, MRB_ARGS_NONE());
   DONE;
 }
 
