@@ -13,13 +13,15 @@
 
 #define DONE mrb_gc_arena_restore(mrb, 0);
 
+static mrb_value mrb_queue_generator(mrb_state *mrb, mrb_value self)
+{
+}
+
 void mrb_kwrb_gem_init(mrb_state *mrb)
 {
-  struct RClass *kwrb;
-  kwrb = mrb_define_class(mrb, "Kwrb", mrb->object_class);
-  mrb_define_method(mrb, kwrb, "initialize", mrb_kwrb_init, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, kwrb, "hello", mrb_kwrb_hello, MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, kwrb, "read_message", mrb_read_message, MRB_ARGS_REQ(1));
+  struct RClass *queue;
+  queue = mrb_define_class(mrb, "Queue", mrb->object_class);
+  mrb_define_method(mrb, queue, "initialize", mrb_queue_generator, MRB_ARGS_NONE());
   DONE;
 }
 
