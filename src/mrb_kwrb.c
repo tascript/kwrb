@@ -23,10 +23,18 @@ static mrb_value mrb_queue_generator(mrb_state *mrb, mrb_value self) {
   }
 }
 
+static mrb_value mrb_enqueue(mrb_state *mrb, mrb_value self) {
+}
+
+static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self) {
+}
+
 void mrb_kwrb_gem_init(mrb_state *mrb) {
   struct RClass *queue;
   queue = mrb_define_class(mrb, "Queue", mrb->object_class);
   mrb_define_method(mrb, queue, "initialize", mrb_queue_generator, MRB_ARGS_NONE());
+  mrb_define_method(mrb, queue, "enqueue", mrb_enqueue, MRB_ARGS_NONE());
+  mrb_define_method(mrb, queue, "dequeue", mrb_dequeue, MRB_ARGS_NONE());
   DONE;
 }
 
