@@ -16,10 +16,14 @@
 
 #define DONE mrb_gc_arena_restore(mrb, 0);
 
+typedef struct {
+  char data[LIMIT];
+} kwrb_queue
+
 static mrb_value mrb_queue_generator(mrb_state *mrb, mrb_value self) {
-  char *queue = (char *)malloc(LIMIT * sizeof(char));
+  kwrb_queue *queue = malloc(sizeof(kwrb_queue));
   for (i = 0; i < LIMIT; i++) {
-    queue[i] = '';
+    queue->data[i] = '';
   }
 }
 
