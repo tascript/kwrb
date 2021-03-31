@@ -18,10 +18,14 @@
 
 typedef struct {
   char data[LIMIT];
+  int head;
+  int tail;
 } kwrb_queue
 
 static mrb_value mrb_queue_generator(mrb_state *mrb, mrb_value self) {
   kwrb_queue *queue = malloc(sizeof(kwrb_queue));
+  queue->head = 0;
+  queue->tail = 0;
   for (i = 0; i < LIMIT; i++) {
     queue->data[i] = '';
   }
