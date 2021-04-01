@@ -29,9 +29,13 @@ static mrb_value mrb_queue_generator(mrb_state *mrb, mrb_value self) {
   for (i = 0; i < LIMIT; i++) {
     queue->data[i] = '';
   }
+  return self;
 }
 
 static mrb_value mrb_enqueue(mrb_state *mrb, mrb_value self) {
+  mrb_value message;
+  mrb_get_args(mrb, "S", &message);
+  return mrb_nil_value();
 }
 
 static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self) {
@@ -41,7 +45,7 @@ void mrb_kwrb_gem_init(mrb_state *mrb) {
   struct RClass *queue;
   queue = mrb_define_class(mrb, "Queue", mrb->object_class);
   mrb_define_method(mrb, queue, "initialize", mrb_queue_generator, MRB_ARGS_NONE());
-  mrb_define_method(mrb, queue, "enqueue", mrb_enqueue, MRB_ARGS_NONE());
+  mrb_define_method(mrb, queue, "enqueue", mrb_enqueue, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, queue, "dequeue", mrb_dequeue, MRB_ARGS_NONE());
   DONE;
 }
