@@ -10,6 +10,7 @@
 #include <mruby/error.h>
 #include <mruby/string.h>
 #include <stdlib.h>
+#include <mruby/data.h>
 #include "mrb_kwrb.h"
 
 #define LIMIT 100
@@ -21,6 +22,8 @@ typedef struct {
   int head;
   int tail;
 } kwrb_queue
+
+const static struct mrb_data_type mrb_queue_type = { "Queue", mrb_free }
 
 static mrb_value mrb_queue_generator(mrb_state *mrb, mrb_value self) {
   kwrb_queue *queue = malloc(sizeof(kwrb_queue));
@@ -44,6 +47,7 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self) {
 void mrb_kwrb_gem_init(mrb_state *mrb) {
   struct RClass *queue;
   queue = mrb_define_class(mrb, "Queue", mrb->object_class);
+  MRB_SET_INSTANCE_TT(queue, MRB_TT_DATA);
   mrb_define_method(mrb, queue, "initialize", mrb_queue_generator, MRB_ARGS_NONE());
   mrb_define_method(mrb, queue, "enqueue", mrb_enqueue, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, queue, "dequeue", mrb_dequeue, MRB_ARGS_NONE());
