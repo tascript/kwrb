@@ -27,7 +27,7 @@ typedef struct
 const static struct mrb_data_type mrb_queue_type = {"Queue", mrb_free};
 
 static mrb_value
-mrb_queue_generator(mrb_state *mrb, mrb_value self)
+mrb_queue_init(mrb_state *mrb, mrb_value self)
 {
   kwrb_queue *queue = (kwrb_queue *)mrb_malloc(mrb, sizeof(kwrb_queue));
   queue->head = 0;
