@@ -70,6 +70,10 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
     return mrb_nil_value();
   }
   q->head++;
+  if (q->head >= LIMIT)
+  {
+    q->head = 0;
+  }
   mrb_str_new_cstr(mrb, q->data[q->tail]);
 }
 
