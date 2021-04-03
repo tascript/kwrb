@@ -8,6 +8,8 @@
 
 #include <mruby.h>
 #include <mruby/error.h>
+#include <mruby/class.h>
+#include <mruby/value.h>
 #include <mruby/string.h>
 #include <stdlib.h>
 #include <mruby/data.h>
@@ -39,12 +41,12 @@ mrb_queue_init(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_enqueue(mrb_state *mrb, mrb_value self)
 {
-  mrb_value message;
-  mrb_get_args(mrb, "S", &message);
-  int i, j, size;
+  char *message;
+  int size;
+  mrb_get_args(mrb, "s", &message, &size);
+  int i;
   kwrb_queue *q;
   q = DATA_PTR(self);
-  size = RSTRING_LEN(message);
   for (i = 0; i < size; i++)
   {
     if (q->tail >= LIMIT)
@@ -71,7 +73,7 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
   {
     q->head = 0;
   }
-  mrb_str_new_cstr(mrb, q->data[q->tail]);
+  return mrb_str_new_cstr(mrb, &q->data[q->tail]);
 }
 
 void mrb_kwrb_gem_init(mrb_state *mrb)
