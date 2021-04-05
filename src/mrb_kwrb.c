@@ -68,12 +68,14 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
   {
     return mrb_nil_value();
   }
+  char result;
+  result = q->data[q->head];
   q->head++;
   if (q->head >= LIMIT)
   {
     q->head = 0;
   }
-  return mrb_str_new_cstr(mrb, &q->data[q->tail]);
+  return mrb_str_new_cstr(mrb, &result);
 }
 
 void mrb_kwrb_gem_init(mrb_state *mrb)
