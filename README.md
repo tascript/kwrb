@@ -15,6 +15,8 @@ end
 
 ## usage
 
+usage of kwrb is simple.
+
 **connect**
 
 ```ruby
