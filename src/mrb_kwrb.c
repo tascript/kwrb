@@ -79,6 +79,10 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
   return mrb_str_new_cstr(mrb, &result);
 }
 
+static mrb_value mrb_thread_init(mrb_state *mrb, mrb_value self)
+{
+}
+
 void mrb_kwrb_gem_init(mrb_state *mrb)
 {
   struct RClass *queue, *thread;
@@ -88,6 +92,7 @@ void mrb_kwrb_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, queue, "enqueue", mrb_enqueue, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, queue, "dequeue", mrb_dequeue, MRB_ARGS_NONE());
   thread = mrb_define_class(mrb, "Thread", mrb->object_class);
+  mrb_define_method(mrb, thread, "initialize", mrb_thread_init, MRB_ARGS_NONE());
   MRB_SET_INSTANCE_TT(thread, MRB_TT_DATA);
   DONE;
 }
