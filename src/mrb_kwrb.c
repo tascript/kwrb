@@ -81,6 +81,7 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_thread_init(mrb_state *mrb, mrb_value self)
 {
+  return self;
 }
 
 void mrb_kwrb_gem_init(mrb_state *mrb)
