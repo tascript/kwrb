@@ -76,7 +76,7 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
   {
     q->head = 0;
   }
-  return mrb_str_new_cstr(mrb, &result);
+  return mrb_str_new_static(mrb, &result, 1);
 }
 
 static mrb_value mrb_thread_init(mrb_state *mrb, mrb_value self)
