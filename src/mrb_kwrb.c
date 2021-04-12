@@ -27,6 +27,11 @@ typedef struct
   int tail;
 } kwrb_queue;
 
+typedef struct
+{
+  pthread_t thread;
+} kwrb_thread;
+
 const static struct mrb_data_type mrb_queue_type = {"Queue", mrb_free};
 const static struct mrb_data_type mrb_thread_type = {"Thread", mrb_free};
 
@@ -82,7 +87,9 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_thread_init(mrb_state *mrb, mrb_value self)
 {
-  pthread_t thread;
+  kwrb_thread *thread = (kwrb_thread *)mrb_malloc(mrb, sizeof(kwrb_thread));
+  DATA_TYPE(self) = &mrb_thread_type;
+  DATA_PTR(self) = thread;
   return self;
 }
 
