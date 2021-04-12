@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <mruby/data.h>
 #include "mrb_kwrb.h"
+#include <pthread.h>
 
 #define LIMIT 100
 
@@ -81,6 +82,7 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_thread_init(mrb_state *mrb, mrb_value self)
 {
+  pthread_t thread;
   return self;
 }
 
