@@ -85,6 +85,10 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
   return mrb_str_new_static(mrb, &result, 1);
 }
 
+static void *mrb_thread_socket(void *p)
+{
+}
+
 static mrb_value mrb_thread_init(mrb_state *mrb, mrb_value self)
 {
   kwrb_thread *thread = (kwrb_thread *)mrb_malloc(mrb, sizeof(kwrb_thread));
