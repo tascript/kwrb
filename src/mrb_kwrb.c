@@ -29,7 +29,7 @@ typedef struct
 
 typedef struct
 {
-  pthread_t thread;
+  pthread_t th;
 } kwrb_thread;
 
 const static struct mrb_data_type mrb_queue_type = {"Queue", mrb_free};
@@ -94,6 +94,7 @@ static mrb_value mrb_thread_init(mrb_state *mrb, mrb_value self)
   kwrb_thread *thread = (kwrb_thread *)mrb_malloc(mrb, sizeof(kwrb_thread));
   DATA_TYPE(self) = &mrb_thread_type;
   DATA_PTR(self) = thread;
+  pthread_create(&thread->th, NULL, &mrb_thread_socket, &thread);
   return self;
 }
 
