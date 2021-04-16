@@ -91,6 +91,8 @@ static void *mrb_thread_socket(void *p)
 
 static mrb_value mrb_thread_init(mrb_state *mrb, mrb_value self)
 {
+  mrb_value b;
+  mrb_get_args(mrb, "&", &b);
   kwrb_thread *thread = (kwrb_thread *)mrb_malloc(mrb, sizeof(kwrb_thread));
   DATA_TYPE(self) = &mrb_thread_type;
   DATA_PTR(self) = thread;
