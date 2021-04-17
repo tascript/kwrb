@@ -30,6 +30,7 @@ typedef struct
 typedef struct
 {
   pthread_t th;
+  mrb_value mrb;
 } kwrb_thread;
 
 const static struct mrb_data_type mrb_queue_type = {"Queue", mrb_free};
