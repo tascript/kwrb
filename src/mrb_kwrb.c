@@ -30,7 +30,8 @@ typedef struct
 typedef struct
 {
   pthread_t th;
-  mrb_value mrb;
+  mrb_state *mrb;
+  mrb_value block;
 } kwrb_thread;
 
 const static struct mrb_data_type mrb_queue_type = {"Queue", mrb_free};
@@ -92,11 +93,10 @@ static void *mrb_thread_socket(void *p)
 
 static mrb_value mrb_thread_init(mrb_state *mrb, mrb_value self)
 {
-  mrb_value b;
-  mrb_get_args(mrb, "&", &b);
   kwrb_thread *thread = (kwrb_thread *)mrb_malloc(mrb, sizeof(kwrb_thread));
   DATA_TYPE(self) = &mrb_thread_type;
   DATA_PTR(self) = thread;
+  mrb_get_args(mrb, "&", &thread->block);
   pthread_create(&thread->th, NULL, &mrb_thread_socket, &thread);
   return self;
 }
