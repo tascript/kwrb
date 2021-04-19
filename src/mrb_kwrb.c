@@ -89,6 +89,8 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
 
 static void *mrb_thread_socket(void *p)
 {
+  kwrb_thread *thread = (kwrb_thread *)p;
+  mrb_yield_argv(thread->mrb, thread->block, 0, NULL);
 }
 
 static mrb_value mrb_thread_init(mrb_state *mrb, mrb_value self)
