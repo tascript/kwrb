@@ -30,9 +30,16 @@ s = Kwrb::Client.connect('host')
 s.disconnect
 ```
 
+**publish**
+
+```ruby
+s = Kwrb::Client.connect('host')
+s.publish('a/b', 'hello')
+```
+
 **subscribe**
 
 ```ruby
 s = Kwrb::Client.connect('host')
-s.subscribe('hello')
+s.subscribe('a/b')
 ```
