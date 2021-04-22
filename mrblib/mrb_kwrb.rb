@@ -32,7 +32,7 @@ class Kwrb
       @message_id = 0x01
       @socket = socket
       @queue = Queue.new
-      @fiber = Fiber.new do
+      @fiber = Thread.new do
         until @socket.closed?
           res = IO.select [@socket], [], [], TIMEOUT
           next if res.nil?
