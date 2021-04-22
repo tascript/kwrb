@@ -39,7 +39,6 @@ class Kwrb
 
           packet = @socket.read
           @queue.push(packet)
-          Fiber.yield
         end
       end
     end
