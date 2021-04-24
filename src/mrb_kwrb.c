@@ -118,7 +118,7 @@ void mrb_kwrb_gem_init(mrb_state *mrb)
   thread = mrb_define_class(mrb, "Thread", mrb->object_class);
   MRB_SET_INSTANCE_TT(thread, MRB_TT_DATA);
   mrb_define_method(mrb, thread, "initialize", mrb_thread_init, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, thread, "join", mrb_thread_join, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, thread, "join", mrb_thread_join, MRB_ARGS_REQ(2));
 
   DONE;
 }
