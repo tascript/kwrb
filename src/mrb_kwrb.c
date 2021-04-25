@@ -58,12 +58,14 @@ static mrb_value mrb_enqueue(mrb_state *mrb, mrb_value self)
   q = DATA_PTR(self);
   for (i = 0; i < size; i++)
   {
+    int arena_i = mrb_gc_arena_save(mrb);
     if (q->tail >= LIMIT)
     {
       q->tail = 0;
     }
     q->data[q->tail] = message[i];
     q->tail++;
+    mrb_gc_arena_restore(mrb, arena_i);
   }
 
   return mrb_nil_value();
