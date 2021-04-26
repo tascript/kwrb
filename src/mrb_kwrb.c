@@ -11,6 +11,7 @@
 #include <mruby/class.h>
 #include <mruby/value.h>
 #include <mruby/string.h>
+#include <mruby/array.h>
 #include <stdlib.h>
 #include <mruby/data.h>
 #include "mrb_kwrb.h"
@@ -22,9 +23,8 @@
 
 typedef struct
 {
-  char data[LIMIT];
-  int head;
-  int tail;
+  mrb_state *mrb;
+  mrb_value queue;
 } kwrb_queue;
 
 typedef struct
@@ -40,33 +40,23 @@ const static struct mrb_data_type mrb_thread_type = {"Thread", mrb_free};
 static mrb_value
 mrb_queue_init(mrb_state *mrb, mrb_value self)
 {
-  kwrb_queue *queue = (kwrb_queue *)mrb_malloc(mrb, sizeof(kwrb_queue));
-  queue->head = 0;
-  queue->tail = 0;
+  kwrb_queue *q = (kwrb_queue *)mrb_malloc(mrb, sizeof(kwrb_queue));
+  q->mrb = mrb;
+  q->queue = mrb_ary_new(mrb);
   DATA_TYPE(self) = &mrb_queue_type;
-  DATA_PTR(self) = queue;
+  DATA_PTR(self) = q;
   return self;
 }
 
 static mrb_value mrb_enqueue(mrb_state *mrb, mrb_value self)
 {
-  char *message;
-  int size;
-  mrb_get_args(mrb, "s", &message, &size);
-  int i;
+  mrb_value message;
+  mrb_get_args(mrb, "S", &message);
   kwrb_queue *q;
   q = DATA_PTR(self);
-  for (i = 0; i < size; i++)
-  {
-    int arena_i = mrb_gc_arena_save(mrb);
-    if (q->tail >= LIMIT)
-    {
-      q->tail = 0;
-    }
-    q->data[q->tail] = message[i];
-    q->tail++;
-    mrb_gc_arena_restore(mrb, arena_i);
-  }
+  int arena_i = mrb_gc_arena_save(q->mrb);
+  mrb_ary_push(q->mrb, q->queue, message);
+  mrb_gc_arena_restore(q->mrb, arena_i);
 
   return mrb_nil_value();
 }
@@ -74,19 +64,10 @@ static mrb_value mrb_enqueue(mrb_state *mrb, mrb_value self)
 static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
 {
   kwrb_queue *q;
+  mrb_value res;
   q = DATA_PTR(self);
-  if (q->head == q->tail)
-  {
-    return mrb_nil_value();
-  }
-  char result;
-  result = q->data[q->head];
-  q->head++;
-  if (q->head >= LIMIT)
-  {
-    q->head = 0;
-  }
-  return mrb_str_new_static(mrb, &result, 1);
+  res = mrb_ary_pop(q->mrb, q->queue);
+  return res;
 }
 
 static void *mrb_thread_socket(void *p)
