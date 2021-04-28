@@ -38,7 +38,7 @@ class Kwrb
           next if res.nil?
 
           packet = @socket.read
-          @queue.push(packet)
+          @queue.enqueue(packet)
         end
       end
     end
@@ -76,8 +76,7 @@ class Kwrb
       return if qos.zero?
 
       loop do
-        @fiber.resume
-        response = @queue.pop
+        response = @queue.dequeue
         next if response.empty?
 
         case qos
