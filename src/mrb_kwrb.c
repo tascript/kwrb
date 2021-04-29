@@ -86,7 +86,12 @@ static mrb_value mrb_thread_init(mrb_state *mrb, mrb_value self)
   return self;
 }
 
-static mrb_value mrb_thread_join(mrb_state *mrb, mrb_value self) {}
+static mrb_value mrb_thread_join(mrb_state *mrb, mrb_value self)
+{
+  kwrb_thread *t;
+  pthread_join(t->th, NULL);
+  return mrb_nil_value();
+}
 
 void mrb_kwrb_gem_init(mrb_state *mrb)
 {
