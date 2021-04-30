@@ -38,7 +38,7 @@ class Kwrb
             res = s.recv(255)
             next if res.empty?
 
-            @queue.enqueue s.recv(255)
+            @queue.enqueue res
           end
           Fiber.yield
         end
