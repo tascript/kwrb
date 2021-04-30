@@ -27,20 +27,16 @@ class Kwrb
   end
 
   class Client
-    TIMEOUT = 1
     def initialize(socket)
       @message_id = 0x01
       @socket = socket
       @queue = Queue.new
       @fiber = Fiber.new do
         until @socket.closed?
-          res = IO.select [@socket], [], [], TIMEOUT
-          next if res.nil?
-
-          packet = @socket.read
-          next if packet.empty?
-
-          @queue.enqueue(packet)
+          res = IO.select [@socket]
+          res[0].each do |s|
+            @queue.enqueue s.recv(255)
+          end
           Fiber.yield
         end
       end
@@ -80,7 +76,6 @@ class Kwrb
 
       @fiber.resume
       response = @queue.dequeue
-      next if response.empty?
 
       case qos
       when 0x01
@@ -108,7 +103,7 @@ class Kwrb
       @socket.write packet.data
       @fiber.resume
 
-      response = @queue.pop
+      response = @queue.dequeue
       Kwrb::Packet::Suback.validate_packet(response, @message_id, qos)
 
       puts "Sucscribe is Successful: subscribe #{topic} and qos level is #{qos}"
