@@ -33,8 +33,11 @@ class Kwrb
       @queue = Queue.new
       @fiber = Fiber.new do
         until @socket.closed?
-          res = IO.select [@socket]
-          res[0].each do |s|
+          sockets = IO.select [@socket]
+          sockets[0].each do |s|
+            res = s.recv(255)
+            next if res.empty?
+
             @queue.enqueue s.recv(255)
           end
           Fiber.yield
@@ -112,9 +115,13 @@ class Kwrb
     def read_message(topic, qos)
       raise 'Failed: topic is invalid when read message' if topic.nil?
 
+      subscribe(topic, qos)
       loop do
-        subscribe(topic, qos)
-        @socket.read
+        @fiber.resume
+        res = @queue.dequeue
+        next if res.nil?
+
+        puts res
       end
     end
 
