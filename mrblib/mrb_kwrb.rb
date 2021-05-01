@@ -40,6 +40,8 @@ class Kwrb
 
             @queue.enqueue res
           end
+          next if @queue.value.empty?
+
           Fiber.yield
         end
       end
