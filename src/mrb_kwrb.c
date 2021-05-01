@@ -70,6 +70,13 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
   return res;
 }
 
+static mrb_value mrb_get_queue_value(mrb_state *mrb, mrb_value self)
+{
+  kwrb_queue *q;
+  q = DATA_PTR(self);
+  return q->queue;
+}
+
 static void *mrb_thread_socket(void *p)
 {
   kwrb_thread *thread = (kwrb_thread *)p;
@@ -102,6 +109,7 @@ void mrb_kwrb_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, queue, "initialize", mrb_queue_init, MRB_ARGS_NONE());
   mrb_define_method(mrb, queue, "enqueue", mrb_enqueue, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, queue, "dequeue", mrb_dequeue, MRB_ARGS_NONE());
+  mrb_define_method(mrb, queue, "value", mrb_get_queue_value, MRB_ARGS_NONE());
 
   thread = mrb_define_class(mrb, "Thread", mrb->object_class);
   MRB_SET_INSTANCE_TT(thread, MRB_TT_DATA);
