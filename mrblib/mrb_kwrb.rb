@@ -99,17 +99,17 @@ class Kwrb
       puts message
     end
 
-    def subscribe(topic)
+    def subscribe(topic, qos = 0x00)
       raise 'Failed: topic is invalid when subscribe message' if topic.nil?
 
-      packet = Kwrb::Packet::Subscribe.new(topic, @message_id)
+      packet = Kwrb::Packet::Subscribe.new(topic, @message_id, qos)
 
       # FIXME: create payload for multiple topics
       @socket.write packet.data
       @fiber.resume
 
       response = @queue.dequeue
-      Kwrb::Packet::Suback.validate_packet(response, @message_id)
+      Kwrb::Packet::Suback.validate_packet(response, @message_id, qos)
 
       puts "Sucscribe is Successful: subscribe '#{topic}'"
     end
@@ -295,10 +295,9 @@ class Kwrb
     end
     class Subscribe
       attr_reader :data
-      def initialize(topic, message_id)
+      def initialize(topic, message_id, qos)
         type = 0x08 << 4
         dup = 0x00 << 3
-        qos = 0x01
         retain = 0x00
         message_id = message_id.to_i
         variable_header = ''
@@ -313,8 +312,7 @@ class Kwrb
       end
     end
     class Suback
-      def self.validate_packet(binary, message_id)
-        qos = 0x01
+      def self.validate_packet(binary, message_id, qos)
         decoded = Kwrb.decode(binary)
         type = 0x09 << 4
         remaining_length = 0x03
