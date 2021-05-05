@@ -43,3 +43,5 @@ s.publish('a/b', 'hello')
 s = Kwrb::Client.connect('host')
 s.subscribe('a/b')
 ```
+
+## license
