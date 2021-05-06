@@ -8,4 +8,3 @@ s.disconnect
 
 s = Kwrb::Client.connect('host')
 s.subscribe('a/b')
-s.disconnect
