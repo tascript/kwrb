@@ -35,7 +35,7 @@ class Kwrb
         until @socket.closed?
           sockets = IO.select [@socket]
           sockets[0].each do |s|
-            res = s.recv(255)
+            res = s.read
             next if res.empty?
 
             @queue.enqueue res
