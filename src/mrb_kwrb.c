@@ -15,7 +15,6 @@
 #include <stdlib.h>
 #include <mruby/data.h>
 #include "mrb_kwrb.h"
-#include <pthread.h>
 
 #define LIMIT 100
 
@@ -27,15 +26,7 @@ typedef struct
   mrb_value queue;
 } kwrb_queue;
 
-typedef struct
-{
-  pthread_t th;
-  mrb_state *mrb;
-  mrb_value block;
-} kwrb_thread;
-
 const static struct mrb_data_type mrb_queue_type = {"Queue", mrb_free};
-const static struct mrb_data_type mrb_thread_type = {"Thread", mrb_free};
 
 static mrb_value
 mrb_queue_init(mrb_state *mrb, mrb_value self)
@@ -77,32 +68,9 @@ static mrb_value mrb_get_queue_value(mrb_state *mrb, mrb_value self)
   return q->queue;
 }
 
-static void *mrb_thread_socket(void *p)
-{
-  kwrb_thread *thread = (kwrb_thread *)p;
-  mrb_yield_argv(thread->mrb, thread->block, 0, NULL);
-}
-
-static mrb_value mrb_thread_init(mrb_state *mrb, mrb_value self)
-{
-  kwrb_thread *thread = (kwrb_thread *)mrb_malloc(mrb, sizeof(kwrb_thread));
-  DATA_TYPE(self) = &mrb_thread_type;
-  DATA_PTR(self) = thread;
-  mrb_get_args(mrb, "&", &thread->block);
-  pthread_create(&thread->th, NULL, &mrb_thread_socket, &thread);
-  return self;
-}
-
-static mrb_value mrb_thread_join(mrb_state *mrb, mrb_value self)
-{
-  kwrb_thread *t;
-  pthread_join(t->th, NULL);
-  return mrb_nil_value();
-}
-
 void mrb_kwrb_gem_init(mrb_state *mrb)
 {
-  struct RClass *queue, *thread;
+  struct RClass *queue;
 
   queue = mrb_define_class(mrb, "Queue", mrb->object_class);
   MRB_SET_INSTANCE_TT(queue, MRB_TT_DATA);
@@ -110,11 +78,6 @@ void mrb_kwrb_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, queue, "enqueue", mrb_enqueue, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, queue, "dequeue", mrb_dequeue, MRB_ARGS_NONE());
   mrb_define_method(mrb, queue, "value", mrb_get_queue_value, MRB_ARGS_NONE());
-
-  thread = mrb_define_class(mrb, "Thread", mrb->object_class);
-  MRB_SET_INSTANCE_TT(thread, MRB_TT_DATA);
-  mrb_define_method(mrb, thread, "initialize", mrb_thread_init, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, thread, "join", mrb_thread_join, MRB_ARGS_REQ(2));
 
   DONE;
 }
