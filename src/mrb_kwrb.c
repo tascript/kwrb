@@ -14,6 +14,7 @@
 #include <mruby/array.h>
 #include <stdlib.h>
 #include <mruby/data.h>
+#include <mruby/variable.h>
 #include "mrb_kwrb.h"
 
 #define LIMIT 100
@@ -34,6 +35,7 @@ mrb_queue_init(mrb_state *mrb, mrb_value self)
   kwrb_queue *q = (kwrb_queue *)mrb_malloc(mrb, sizeof(kwrb_queue));
   q->mrb = mrb;
   q->queue = mrb_ary_new(mrb);
+  mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "queue"), q->queue);
   DATA_TYPE(self) = &mrb_queue_type;
   DATA_PTR(self) = q;
   return self;
