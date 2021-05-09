@@ -63,7 +63,7 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
   return res;
 }
 
-static mrb_value mrb_get_queue_value(mrb_state *mrb, mrb_value self)
+static mrb_value mrb_queue_get(mrb_state *mrb, mrb_value self)
 {
   kwrb_queue *q;
   q = DATA_PTR(self);
@@ -79,7 +79,7 @@ void mrb_kwrb_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, queue, "initialize", mrb_queue_init, MRB_ARGS_NONE());
   mrb_define_method(mrb, queue, "enqueue", mrb_enqueue, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, queue, "dequeue", mrb_dequeue, MRB_ARGS_NONE());
-  mrb_define_method(mrb, queue, "value", mrb_get_queue_value, MRB_ARGS_NONE());
+  mrb_define_method(mrb, queue, "get", mrb_queue_get, MRB_ARGS_NONE());
 
   DONE;
 }
