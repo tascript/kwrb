@@ -203,8 +203,8 @@ class Kwrb
         decoded = Kwrb.decode(binary)
         @type = 0x02 << 4
         @remaining_length = 0x02
-        topic_name = 0x00
-        fixed_data = [@type, @remaining_length, topic_name]
+        flag = 0x01
+        fixed_data = [@type, @remaining_length, flag]
         if decoded[0..2] != fixed_data
           raise 'Failed: packet is invalid when read Connack'
         end
