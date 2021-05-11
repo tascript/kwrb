@@ -178,8 +178,8 @@ class Kwrb
       attr_reader :data
       def initialize(username, password, client_id)
         @type = 0x01 << 4
-        @protocol = 'MQIsdp'
-        @version = 0x03
+        @protocol = 'MQTT'
+        @version = 0x04
         @user_flag = !username.nil? ? 1 : 0
         @password_flag = !password.nil? ? 1 : 0
         variable_header = ''
