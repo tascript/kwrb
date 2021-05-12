@@ -52,7 +52,7 @@ class Kwrb
 
     def self.request_keep_alive(socket)
       packet = Kwrb::Packet::Pingreq.new
-      socket.write packet
+      socket.write packet.data
     end
 
     def self.connect(host: '', username: nil, password: nil, port: 1883, client_id: 'test_client')
