@@ -36,7 +36,10 @@ class Kwrb
           sockets = IO.select [@socket]
           sockets[0].each do |s|
             res = s.read
-            next if res.empty?
+            if res.empty?
+              Kwrb::Client.request_keep_alive @socket
+              next
+            end
 
             @queue.enqueue res
           end
@@ -45,6 +48,11 @@ class Kwrb
           Fiber.yield
         end
       end
+    end
+
+    def self.request_keep_alive(socket)
+      packet = Kwrb::Packet::Pingreq.new
+      socket.write packet
     end
 
     def self.connect(host: '', username: nil, password: nil, port: 1883, client_id: 'test_client')
