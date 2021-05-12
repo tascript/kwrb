@@ -69,7 +69,7 @@ class Kwrb
       new socket
     end
 
-    def publish(topic, message, qos = 0x00)
+    def publish(topic: nil, message: nil, qos: 0x00)
       raise 'Failed: topic is invalid when publish message' if topic.nil?
       raise 'Failed: message is invalid when publish message' if message.nil?
       if qos.negative? || qos >= 0x03
@@ -100,7 +100,7 @@ class Kwrb
       puts message
     end
 
-    def subscribe(topic, qos = 0x00)
+    def subscribe(topic: nil, qos: 0x00)
       raise 'Failed: topic is invalid when subscribe message' if topic.nil?
 
       packet = Kwrb::Packet::Subscribe.new(topic, @message_id, qos)
