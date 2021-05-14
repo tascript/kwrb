@@ -37,7 +37,7 @@ class Kwrb
           sockets[0].each do |s|
             res = s.read
             if res.empty?
-              Kwrb::Client.request_keep_alive @socket
+              Kwrb::Client.keep_alive @socket
               next
             end
 
@@ -50,7 +50,9 @@ class Kwrb
       end
     end
 
-    def self.request_keep_alive(socket)
+    def self.keep_alive(socket)
+      raise 'Failed: socket is already closed' if socket.closed?
+
       packet = Kwrb::Packet::Pingreq.new
       socket.write packet.data
     end
@@ -105,7 +107,6 @@ class Kwrb
         raise "Failed: qos level #{qos} is invalid"
       end
       Kwrb.increment(@message_id)
-      puts message
     end
 
     def subscribe(topic: nil, qos: 0x00)
