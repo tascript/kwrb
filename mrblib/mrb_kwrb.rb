@@ -37,7 +37,10 @@ class Kwrb
           sockets[0].each do |s|
             res = s.read
             if res.empty?
-              Kwrb::Client.keep_alive @socket
+              raise 'Failed: socket is already closed' if @socket.closed?
+
+              ping_packet = Kwrb::Packet::Pingreq.new
+              @socket.write ping_packet.data
               next
             end
 
@@ -48,13 +51,6 @@ class Kwrb
           Fiber.yield
         end
       end
-    end
-
-    def self.keep_alive(socket)
-      raise 'Failed: socket is already closed' if socket.closed?
-
-      packet = Kwrb::Packet::Pingreq.new
-      socket.write packet.data
     end
 
     def self.connect(host: '', username: nil, password: nil, port: 1883, client_id: 'test_client')
