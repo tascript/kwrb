@@ -53,7 +53,7 @@ class Kwrb
       end
     end
 
-    def self.connect(host: '', username: nil, password: nil, port: 1883, client_id: 'test_client')
+    def self.connect(host: '', username: nil, password: nil, qos: 0x00, clean_session: 0x00, port: 1883, client_id: 'test_client')
       @client_id = client_id.to_s
       if @client_id.empty? || @client_id.bytes.size > 23
         raise 'Failed: client id length is invalid'
@@ -62,9 +62,11 @@ class Kwrb
 
       @username = !username.nil? ? username : ''
       @password = !password.nil? ? password : ''
+      @qos = qos
+      @clean_session = clean_session
 
       socket = TCPSocket.open(host, port)
-      connect_packet = Kwrb::Packet::Connect.new(@username, @password, @client_id)
+      connect_packet = Kwrb::Packet::Connect.new(@username, @password, @client_id, @qos, @clean_session)
       socket.write connect_packet.data
 
       response = socket.read
@@ -181,16 +183,17 @@ class Kwrb
     end
     class Connect
       attr_reader :data
-      def initialize(username, password, client_id)
+      def initialize(username, password, client_id, qos, clean_session)
         @type = 0x01 << 4
         @protocol = 'MQTT'
         @version = 0x04
         @user_flag = !username.nil? ? 1 : 0
         @password_flag = !password.nil? ? 1 : 0
+        @clean_session = clean_session
         variable_header = ''
         variable_header += Kwrb.encode_word @protocol
         variable_header += Kwrb.encode @version
-        variable_header += Kwrb.encode((@user_flag << 7) + (@password_flag << 6))
+        variable_header += Kwrb.encode((@user_flag << 7) + (@password_flag << 6) + (qos << 3) + (clean_session << 1))
         variable_header += Kwrb.encode_unsigned_short 0x0A
         payload = ''
         payload += Kwrb.encode_word client_id
@@ -208,9 +211,9 @@ class Kwrb
         decoded = Kwrb.decode(binary)
         @type = 0x02 << 4
         @remaining_length = 0x02
-        flag = 0x01
-        fixed_data = [@type, @remaining_length, flag]
-        if decoded[0..2] != fixed_data
+        with_session = [@type, @remaining_length, 0x00]
+        with_no_session = [@type, @remaining_length, 0x01]
+        if (decoded[0..2] != with_session) && (decoded[0..2] != with_no_session)
           raise 'Failed: packet is invalid when read Connack'
         end
 
