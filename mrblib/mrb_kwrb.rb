@@ -53,7 +53,7 @@ class Kwrb
       end
     end
 
-    def self.connect(host: '', username: nil, password: nil, qos: 0x00, clean_session: 0x00, port: 1883, client_id: 'test_client')
+    def self.connect(host: '', username: nil, password: nil, qos: 0x00, clean_session: 0x01, port: 1883, client_id: 'test_client')
       @client_id = client_id.to_s
       if @client_id.empty? || @client_id.bytes.size > 23
         raise 'Failed: client id length is invalid'
@@ -187,8 +187,8 @@ class Kwrb
         @type = 0x01 << 4
         @protocol = 'MQTT'
         @version = 0x04
-        @user_flag = !username.nil? ? 1 : 0
-        @password_flag = !password.nil? ? 1 : 0
+        @user_flag = !username.nil? ? 0x01 : 0x00
+        @password_flag = !password.nil? ? 0x01 : 0x00
         @clean_session = clean_session
         variable_header = ''
         variable_header += Kwrb.encode_word @protocol
