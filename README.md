@@ -20,27 +20,27 @@ usage of kwrb is simple.
 **connect**
 
 ```ruby
-s = Kwrb::Client.connect((host: 'host')
+s = Kwrb::Client.connect(host: 'host')
 ```
 
 **disconnect**
 
 ```ruby
-s = Kwrb::Client.connect((host: 'host')
+s = Kwrb::Client.connect(host: 'host')
 s.disconnect
 ```
 
 **publish**
 
 ```ruby
-s = Kwrb::Client.connect((host: 'host')
+s = Kwrb::Client.connect(host: 'host')
 s.publish(topic: 'a/b', message: 'hello')
 ```
 
 **subscribe**
 
 ```ruby
-s = Kwrb::Client.connect((host: 'host')
+s = Kwrb::Client.connect(host: 'host')
 s.subscribe(topic: 'a/b')
 ```
 
