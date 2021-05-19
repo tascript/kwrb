@@ -36,8 +36,12 @@ class Kwrb
         until @socket.closed?
           sockets = IO.select [@socket]
           sockets[0].each do |s|
-            res = s.sysread MAXSIZE
-            if res.empty?
+            res = (begin
+                     s.sysread MAXSIZE
+                   rescue StandardError
+                     nil
+                   end)
+            if res.nil?
               raise 'Failed: socket is already closed' if @socket.closed?
 
               ping_packet = Kwrb::Packet::Pingreq.new
@@ -85,7 +89,7 @@ class Kwrb
       end
 
       publish_packet = Kwrb::Packet::Publish.new(topic, message, @message_id, qos)
-      @socket.write publish_packet.data
+      @socket.syswrite publish_packet.data
       return if qos.zero?
 
       @fiber.resume
@@ -113,7 +117,7 @@ class Kwrb
       packet = Kwrb::Packet::Subscribe.new(topic, @message_id, qos)
 
       # FIXME: create payload for multiple topics
-      @socket.write packet.data
+      @socket.syswrite packet.data
       @fiber.resume
 
       response = @queue.dequeue
@@ -122,10 +126,10 @@ class Kwrb
       puts "Sucscribe is Successful: subscribe '#{topic}'"
     end
 
-    def read_message(topic, qos)
+    def read_message(topic: nil, qos: 0x00)
       raise 'Failed: topic is invalid when read message' if topic.nil?
 
-      subscribe(topic, qos)
+      subscribe(topic: topic, qos: qos)
       loop do
         @fiber.resume
         res = @queue.dequeue
