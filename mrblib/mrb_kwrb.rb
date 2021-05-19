@@ -101,7 +101,7 @@ class Kwrb
         Kwrb::Packet::Pubrec.validate_packet(response, @message_id)
 
         pubrel_packet = Kwrb::Packet::Pubrel.new(@message_id)
-        @socket.write pubrel_packet.data
+        @socket.syswrite pubrel_packet.data
         pubrel_response = @socket.read
         Kwrb::Packet::Pubcomp.validate_packet(pubrel_response, @message_id)
       else
@@ -144,7 +144,7 @@ class Kwrb
       packet = Kwrb::Packet::Unsubscribe.new(topic, @message_id)
 
       # FIXME: create payload for multiple topics
-      @socket.write packet.data
+      @socket.syswrite packet.data
 
       response = @socket.read
       Kwrb::Packet::Unsuback.validate_packet(response, @message_id)
@@ -154,14 +154,14 @@ class Kwrb
 
     def pingreq
       packet = Kwrb::Packet::Pingreq.new
-      @socket.write packet.data
+      @socket.syswrite packet.data
       response = @socket.read
       Kwrb::Packet::Pingresp.validate_packet(response)
     end
 
     def disconnect
       packet = Kwrb::Packet::Disconnect.new
-      @socket.write packet.data
+      @socket.syswrite packet.data
       @socket.close
     end
   end
