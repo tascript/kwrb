@@ -27,6 +27,7 @@ class Kwrb
   end
 
   class Client
+    MAXSIZE = 1024
     def initialize(socket)
       @message_id = 0x01
       @socket = socket
@@ -35,12 +36,12 @@ class Kwrb
         until @socket.closed?
           sockets = IO.select [@socket]
           sockets[0].each do |s|
-            res = s.read
+            res = s.sysread MAXSIZE
             if res.empty?
               raise 'Failed: socket is already closed' if @socket.closed?
 
               ping_packet = Kwrb::Packet::Pingreq.new
-              @socket.write ping_packet.data
+              @socket.syswrite ping_packet.data
               next
             end
 
@@ -67,9 +68,9 @@ class Kwrb
 
       socket = TCPSocket.open(host, port)
       connect_packet = Kwrb::Packet::Connect.new(@username, @password, @client_id, @qos, @clean_session)
-      socket.write connect_packet.data
+      socket.syswrite connect_packet.data
 
-      response = socket.read
+      response = socket.sysread MAXSIZE
       raise 'Failed: receive invalid response' if response.nil?
 
       Kwrb::Packet::Connack.validate_packet(response)
