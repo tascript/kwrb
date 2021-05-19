@@ -74,7 +74,6 @@ class Kwrb
       raise 'Failed: receive invalid response' if response.nil?
 
       Kwrb::Packet::Connack.validate_packet(response)
-      puts 'Connect is Successful'
       new socket
     end
 
@@ -161,7 +160,6 @@ class Kwrb
       packet = Kwrb::Packet::Disconnect.new
       @socket.write packet.data
       @socket.close
-      puts 'Disconnect is Successful'
     end
   end
 
