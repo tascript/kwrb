@@ -32,29 +32,28 @@ class Kwrb
       @message_id = 0x01
       @socket = socket
       @queue = Queue.new
-      @fiber = Fiber.new do
-        until @socket.closed?
-          sockets = IO.select [@socket]
-          sockets[0].each do |s|
-            res = (begin
-                     s.sysread MAXSIZE
-                   rescue StandardError
-                     nil
-                   end)
-            if res.nil?
-              raise 'Failed: socket is already closed' if @socket.closed?
+    end
 
-              ping_packet = Kwrb::Packet::Pingreq.new
-              s.syswrite ping_packet.data
-              next
-            end
+    def receive
+      until @socket.closed?
+        sockets = IO.select [@socket]
+        sockets[0].each do |s|
+          res = (begin
+                   s.sysread MAXSIZE
+                 rescue StandardError
+                   nil
+                 end)
+          if res.nil?
+            raise 'Failed: socket is already closed' if @socket.closed?
 
-            @queue.enqueue res
+            ping_packet = Kwrb::Packet::Pingreq.new
+            s.syswrite ping_packet.data
+            next
           end
-          next if @queue.get.empty?
 
-          Fiber.yield
+          @queue.enqueue res
         end
+        break unless @queue.get.empty?
       end
     end
 
@@ -92,7 +91,7 @@ class Kwrb
       @socket.syswrite publish_packet.data
       return if qos.zero?
 
-      @fiber.resume
+      receive
       response = @queue.dequeue
 
       case qos
@@ -118,7 +117,7 @@ class Kwrb
 
       # FIXME: create payload for multiple topics
       @socket.syswrite packet.data
-      @fiber.resume
+      receive
 
       response = @queue.dequeue
       Kwrb::Packet::Suback.validate_packet(response, @message_id, qos)
@@ -131,7 +130,7 @@ class Kwrb
 
       subscribe(topic: topic, qos: qos)
       loop do
-        @fiber.resume
+        receive
         res = @queue.dequeue
         next if res.nil?
 
