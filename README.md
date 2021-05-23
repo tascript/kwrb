@@ -13,6 +13,10 @@ MRuby::Build.new do |conf|
 end
 ```
 
+## environment
+
+mruby 2.1.2(recommendation)
+
 ## usage
 
 usage of kwrb is simple.
