@@ -48,6 +48,15 @@ class Kwrb
 
             ping_packet = Kwrb::Packet::Pingreq.new
             s.syswrite ping_packet.data
+
+            begin
+              s.sysread MAXSIZE
+            rescue StandardError
+              nil
+            end
+
+            raise 'Failed: response is invalid' if res.nil?
+
             next
           end
 
