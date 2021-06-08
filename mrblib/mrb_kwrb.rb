@@ -134,6 +134,9 @@ class Kwrb
         res = @queue.dequeue
         next if res.nil?
 
+        packet = Kwrb::Packet::Puback.new(@message_id)
+        @socket.syswrite packet.data if qos.positive?
+
         puts res
       end
     end
@@ -146,7 +149,7 @@ class Kwrb
       # FIXME: create payload for multiple topics
       @socket.syswrite packet.data
 
-      response = @socket.read
+      response = @socket.sysread MAXSIZE
       Kwrb::Packet::Unsuback.validate_packet(response, @message_id)
 
       puts 'Unsubscribe is Successful'
@@ -155,7 +158,7 @@ class Kwrb
     def pingreq
       packet = Kwrb::Packet::Pingreq.new
       @socket.syswrite packet.data
-      response = @socket.read
+      response = @socket.sysread MAXSIZE
       Kwrb::Packet::Pingresp.validate_packet(response)
     end
 
