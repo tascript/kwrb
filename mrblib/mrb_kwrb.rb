@@ -46,8 +46,7 @@ class Kwrb
           if res.nil?
             raise 'Failed: socket is already closed' if @socket.closed?
 
-            ping_packet = Kwrb::Packet::Pingreq.new
-            s.syswrite ping_packet.data
+            pingreq
             next
           end
 
