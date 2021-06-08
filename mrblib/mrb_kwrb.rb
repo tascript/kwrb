@@ -260,6 +260,19 @@ class Kwrb
       end
     end
     class Puback
+      attr_reader :data
+      def initialize(message_id)
+        type = 0x04 << 4
+        message_id = message_id.to_i
+        variable_header = ''
+        variable_header += Kwrb.encode_unsigned_short message_id
+        Kwrb::Packet.validate_packet_size(variable_header)
+        remaining_length = Kwrb::Packet.generate_remaining_length(variable_header)
+        fixed_header = Kwrb.encode(type) + Kwrb.encode(remaining_length)
+        header = fixed_header + variable_header
+        @data = header
+      end
+
       def self.validate_packet(binary, message_id)
         decoded = Kwrb.decode(binary)
         type = 0x04 << 4
