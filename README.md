@@ -9,7 +9,7 @@ MRuby::Build.new do |conf|
 
     # ... (snip) ...
 
-    conf.gem :github => 'tascript/kwrb'
+    conf.gem :github => 'tascript/kwrb', :branch => 'main'
 end
 ```
 
