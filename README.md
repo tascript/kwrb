@@ -49,3 +49,5 @@ s.subscribe(topic: 'a/b')
 ```
 
 ## license
+under the  License:
+- see LICENSE file

@@ -1,7 +1,7 @@
 /*
 ** mrb_kwrb.c - Kwrb class
 **
-** Copyright (c) Wataru Morita 2020
+** Copyright (c) Wataru Morita 2021
 **
 ** See Copyright Notice in LICENSE
 */
