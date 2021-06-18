@@ -17,6 +17,10 @@ end
 
 mruby 2.1.2(recommendation)
 
+## MQTT version
+
+3.1.1
+
 ## usage
 
 usage of kwrb is simple.
