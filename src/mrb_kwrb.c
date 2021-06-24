@@ -59,7 +59,7 @@ static mrb_value mrb_dequeue(mrb_state *mrb, mrb_value self)
   kwrb_queue *q;
   mrb_value res;
   q = DATA_PTR(self);
-  res = mrb_ary_pop(q->mrb, q->queue);
+  res = mrb_ary_shift(q->mrb, q->queue);
   return res;
 }
 
