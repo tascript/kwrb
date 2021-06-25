@@ -17,8 +17,6 @@
 #include <mruby/variable.h>
 #include "mrb_kwrb.h"
 
-#define LIMIT 100
-
 #define DONE mrb_gc_arena_restore(mrb, 0);
 
 typedef struct
