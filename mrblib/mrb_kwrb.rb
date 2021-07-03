@@ -101,7 +101,7 @@ class Kwrb
 
         pubrel_packet = Kwrb::Packet::Pubrel.new(@message_id)
         @socket.syswrite pubrel_packet.data
-        pubrel_response = @socket.read
+        pubrel_response = @socket.sysread MAXSIZE
         Kwrb::Packet::Pubcomp.validate_packet(pubrel_response, @message_id)
       else
         raise "Failed: qos level #{qos} is invalid"
